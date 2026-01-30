@@ -1,0 +1,478 @@
+# Moltbot Complete Configuration for Personal Freelance Coder
+# This configuration enables your Moltbot to act as your personal developer
+# on DigitalOcean, handling coding tasks, research, and project management
+
+# ============================================
+# CORE CONFIGURATION
+# ============================================
+
+# Telegram Bot Configuration
+telegram:
+  enabled: true
+  bot_token: "${TELEGRAM_BOT_TOKEN}"
+  allowed_users:
+    - ${YOUR_TELEGRAM_USER_ID}  # Your Telegram user ID (get from @userinfobot)
+  webhook_url: ""  # Leave empty for polling mode
+  
+# AI Provider Configuration
+ai:
+  provider: anthropic  # Recommended: claude-3.5-sonnet for coding
+  api_key: "${ANTHROPIC_API_KEY}"
+  model: "claude-3-5-sonnet-20241022"
+  max_tokens: 8192
+  temperature: 0.7
+  
+  # Alternative providers (uncomment one if preferred):
+  # provider: openai
+  # api_key: "${OPENAI_API_KEY}"
+  # model: "gpt-4-turbo-preview"
+  
+  # provider: google
+  # api_key: "${GEMINI_API_KEY}"
+  # model: "gemini-1.5-pro"
+
+# Gateway Configuration (Web Interface)
+gateway:
+  enabled: true
+  port: 3000
+  host: "0.0.0.0"
+  auth_enabled: true
+  auth_token: "${GATEWAY_AUTH_TOKEN}"
+
+# ============================================
+# DEVELOPER MODE - FREELANCE CODER SETTINGS
+# ============================================
+
+developer_mode:
+  enabled: true
+  auto_save_code: true
+  code_directory: "/home/moltbot/projects"
+  preferred_languages:
+    - python
+    - javascript
+    - typescript
+    - go
+    - rust
+    - bash
+  
+  # Git Configuration
+  git:
+    enabled: true
+    auto_commit: true
+    commit_prefix: "[moltbot]"
+    default_branch: "main"
+    
+  # Code Quality Tools
+  linting:
+    enabled: true
+    python: "ruff"
+    javascript: "eslint"
+    typescript: "tslint"
+  
+  formatting:
+    enabled: true
+    python: "black"
+    javascript: "prettier"
+
+# ============================================
+# TASK MANAGEMENT
+# ============================================
+
+tasks:
+  enabled: true
+  storage_path: "/home/moltbot/data/tasks"
+  
+  # Task Priorities
+  priorities:
+    - urgent    # Do immediately
+    - high      # Do today
+    - medium    # Do this week
+    - low       # Do when free
+    - backlog   # Ideas for later
+  
+  # Notifications
+  notify_on_complete: true
+  notify_on_block: true
+  daily_summary: true
+  summary_time: "09:00"
+  
+  # Auto-task detection
+  auto_detect_tasks: true
+  task_keywords:
+    - "TODO"
+    - "FIXME"
+    - "BUG"
+    - "HACK"
+    - "OPTIMIZE"
+
+# ============================================
+# PROJECT MANAGEMENT
+# ============================================
+
+projects:
+  enabled: true
+  base_directory: "/home/moltbot/projects"
+  
+  # Project Templates
+  templates:
+    python:
+      structure:
+        - "src/"
+        - "tests/"
+        - "docs/"
+        - "requirements.txt"
+        - "README.md"
+        - ".gitignore"
+    
+    javascript:
+      structure:
+        - "src/"
+        - "tests/"
+        - "package.json"
+        - "README.md"
+        - ".gitignore"
+    
+    webapp:
+      structure:
+        - "frontend/"
+        - "backend/"
+        - "docker-compose.yml"
+        - "README.md"
+        - ".gitignore"
+  
+  # Version Control
+  versioning:
+    enabled: true
+    use_semantic_versioning: true
+    auto_tag_releases: true
+
+# ============================================
+# RESEARCH & LEARNING
+# ============================================
+
+research:
+  enabled: true
+  
+  # Web Search
+  search_engines:
+    - google
+    - duckduckgo
+    - github
+  
+  # Documentation Sources
+  docs_sources:
+    - "https://docs.python.org"
+    - "https://developer.mozilla.org"
+    - "https://docs.github.com"
+    - "https://stackoverflow.com"
+  
+  # Note Taking
+  notes_directory: "/home/moltbot/notes"
+  auto_save_research: true
+  
+  # Code Examples
+  save_code_examples: true
+  examples_directory: "/home/moltbot/examples"
+
+# ============================================
+# FILE SYSTEM ACCESS
+# ============================================
+
+filesystem:
+  enabled: true
+  
+  # Allowed Paths (Moltbot can read/write here)
+  allowed_paths:
+    - "/home/moltbot/projects"
+    - "/home/moltbot/notes"
+    - "/home/moltbot/examples"
+    - "/home/moltbot/data"
+    - "/tmp"
+  
+  # Blocked Paths (Moltbot cannot access)
+  blocked_paths:
+    - "/etc"
+    - "/root"
+    - "/var/log"
+    - "/usr/bin"
+    - "/home/moltbot/.ssh"
+    - "/home/moltbot/.env"
+  
+  # File Type Restrictions
+  allowed_extensions:
+    - ".py"
+    - ".js"
+    - ".ts"
+    - ".go"
+    - ".rs"
+    - ".html"
+    - ".css"
+    - ".json"
+    - ".yaml"
+    - ".yml"
+    - ".md"
+    - ".txt"
+    - ".sh"
+    - ".sql"
+  
+  max_file_size_mb: 10
+  backup_before_edit: true
+
+# ============================================
+# TERMINAL & COMMAND EXECUTION
+# ============================================
+
+terminal:
+  enabled: true
+  
+  # Shell Configuration
+  shell: "/bin/bash"
+  working_directory: "/home/moltbot"
+  
+  # Allowed Commands (whitelist approach)
+  allowed_commands:
+    - "git"
+    - "python"
+    - "python3"
+    - "node"
+    - "npm"
+    - "pip"
+    - "pip3"
+    - "curl"
+    - "wget"
+    - "ls"
+    - "cat"
+    - "mkdir"
+    - "cd"
+    - "cp"
+    - "mv"
+    - "rm"
+    - "touch"
+    - "echo"
+    - "grep"
+    - "find"
+    - "head"
+    - "tail"
+    - "jq"
+    - "docker"
+    - "docker-compose"
+  
+  # Blocked Commands (dangerous operations)
+  blocked_commands:
+    - "sudo"
+    - "su"
+    - "rm -rf /"
+    - "mkfs"
+    - "dd"
+    - "fdisk"
+    - ">:"
+    - "shutdown"
+    - "reboot"
+    - "passwd"
+    - "chmod 777"
+  
+  # Execution Limits
+  max_execution_time: 300  # 5 minutes
+  max_output_lines: 1000
+  require_confirmation_for:
+    - "rm"
+    - "docker system prune"
+    - "git push --force"
+
+# ============================================
+# BROWSER AUTOMATION
+# ============================================
+
+browser:
+  enabled: true
+  
+  # Browser Settings
+  headless: true
+  default_browser: "firefox"  # or "chromium"
+  
+  # User Agent
+  user_agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+  
+  # Allowed Domains (for safety)
+  allowed_domains:
+    - "github.com"
+    - "stackoverflow.com"
+    - "docs.python.org"
+    - "developer.mozilla.org"
+    - "npmjs.com"
+    - "pypi.org"
+    - "news.ycombinator.com"
+    - "*.wikipedia.org"
+    - "medium.com"
+    - "dev.to"
+  
+  # Rate Limiting
+  request_delay_ms: 1000
+  max_requests_per_minute: 30
+  
+  # Screenshots
+  auto_screenshot: true
+  screenshot_directory: "/home/moltbot/screenshots"
+  
+  # Downloads
+  allow_downloads: true
+  download_directory: "/home/moltbot/downloads"
+  max_download_size_mb: 50
+
+# ============================================
+# CODE EXECUTION
+# ============================================
+
+code_execution:
+  enabled: true
+  
+  # Python
+  python:
+    enabled: true
+    interpreter: "python3"
+    virtualenv: "/home/moltbot/venv"
+    auto_install_dependencies: true
+    requirements_file: "requirements.txt"
+  
+  # JavaScript/Node.js
+  nodejs:
+    enabled: true
+    runtime: "node"
+    auto_install_packages: true
+    package_manager: "npm"
+  
+  # Sandboxing (recommended for security)
+  sandbox:
+    enabled: true
+    type: "docker"  # or "firejail"
+    timeout: 30
+    memory_limit: "512m"
+    cpu_limit: "1.0"
+
+# ============================================
+# MCP SERVERS (Model Context Protocol)
+# ============================================
+
+mcp:
+  enabled: true
+  config_path: "/etc/moltbot/mcp.json"
+  
+  # Pre-installed MCP servers
+  servers:
+    playwright:
+      enabled: true
+      description: "Browser automation via Playwright"
+    
+    filesystem:
+      enabled: true
+      description: "File system operations"
+    
+    terminal:
+      enabled: true
+      description: "Shell command execution"
+    
+    github:
+      enabled: true
+      token: "${GITHUB_TOKEN}"
+      description: "GitHub API access"
+    
+    zapier:
+      enabled: false  # Set to true and configure token
+      token: "${ZAPIER_MCP_TOKEN}"
+      description: "Access to 8000+ apps"
+
+# ============================================
+# SECURITY & SAFETY
+# ============================================
+
+security:
+  # Require approval for dangerous operations
+  require_approval:
+    - filesystem.delete
+    - filesystem.write_outside_allowed
+    - terminal.sudo
+    - terminal.rm_recursive
+    - code_execution.unsafe
+    - browser.download_executable
+  
+  # Confirmation timeout
+  approval_timeout: 300  # 5 minutes
+  
+  # Audit logging
+  audit_log:
+    enabled: true
+    path: "/var/log/moltbot/audit.log"
+    log_all_commands: true
+    log_file_access: true
+  
+  # Rate limiting
+  rate_limit:
+    enabled: true
+    max_requests_per_minute: 60
+    max_commands_per_minute: 20
+  
+  # Backup
+  auto_backup:
+    enabled: true
+    interval: "daily"
+    keep_backups: 7
+    backup_path: "/home/moltbot/backups"
+
+# ============================================
+# NOTIFICATIONS
+# ============================================
+
+notifications:
+  telegram:
+    enabled: true
+    notify_on:
+      - task_completed
+      - task_blocked
+      - code_error
+      - deployment_success
+      - daily_summary
+  
+  # Optional: Email notifications
+  email:
+    enabled: false
+    smtp_host: "${SMTP_HOST}"
+    smtp_port: 587
+    smtp_user: "${SMTP_USER}"
+    smtp_pass: "${SMTP_PASS}"
+    from_address: "moltbot@yourdomain.com"
+    to_address: "your-email@example.com"
+
+# ============================================
+# LOGGING
+# ============================================
+
+logging:
+  level: "info"  # debug, info, warn, error
+  file: "/var/log/moltbot/moltbot.log"
+  max_size: "100MB"
+  max_files: 5
+  
+  # Separate logs for different features
+  separate_logs:
+    - "terminal"
+    - "browser"
+    - "filesystem"
+    - "mcp"
+    - "tasks"
+
+# ============================================
+# PERFORMANCE
+# ============================================
+
+performance:
+  # Resource limits
+  max_memory_mb: 2048
+  max_cpu_percent: 80
+  
+  # Parallel processing
+  max_parallel_tasks: 3
+  
+  # Caching
+  cache_enabled: true
+  cache_ttl: 3600  # 1 hour
+  cache_directory: "/home/moltbot/cache"

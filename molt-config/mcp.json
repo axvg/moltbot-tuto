@@ -1,0 +1,102 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"],
+      "env": {
+        "DISPLAY": ":1",
+        "PLAYWRIGHT_BROWSERS_PATH": "/home/moltbot/.cache/ms-playwright"
+      },
+      "description": "Browser automation for web research and testing"
+    },
+    
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/moltbot/projects", "/home/moltbot/notes", "/home/moltbot/examples"],
+      "description": "Safe file system access to project directories"
+    },
+    
+    "terminal": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-terminal"],
+      "env": {
+        "SHELL": "/bin/bash",
+        "HOME": "/home/moltbot"
+      },
+      "description": "Terminal command execution"
+    },
+    
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "GitHub repository management"
+    },
+    
+    "sqlite": {
+      "command": "uvx",
+      "args": ["mcp-server-sqlite", "--db-path", "/home/moltbot/data/moltbot.db"],
+      "description": "SQLite database for task and project storage"
+    },
+    
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "description": "Web content fetching and scraping"
+    },
+    
+    "zapier": {
+      "command": "npx",
+      "args": ["-y", "@zapier/mcp"],
+      "env": {
+        "ZAPIER_MCP_TOKEN": "${ZAPIER_MCP_TOKEN}"
+      },
+      "description": "Integration with 8000+ apps (optional)"
+    },
+    
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "description": "Advanced reasoning for complex coding tasks"
+    },
+    
+    "docker": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "alpine/socat", "stdio-tcp:localhost:2375"],
+      "description": "Docker container management"
+    },
+    
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "/home/moltbot/projects"],
+      "description": "Git operations on project repositories"
+    },
+    
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "description": "Web search via Brave Search API"
+    },
+    
+    "puppeteer": {
+      "command": "node",
+      "args": ["/home/moltbot/mcp-servers/puppeteer-server.js"],
+      "env": {
+        "DISPLAY": ":1"
+      },
+      "description": "Alternative browser automation"
+    }
+  },
+  
+  "settings": {
+    "autoStart": true,
+    "restartOnFailure": true,
+    "healthCheckInterval": 30,
+    "maxConcurrentServers": 5
+  }
+}

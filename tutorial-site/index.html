@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Deploy Moltbot + Telegram on DigitalOcean - Complete Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --secondary: #00c853;
+            --danger: #ff1744;
+            --warning: #ffc400;
+            --bg: #0a0a0a;
+            --bg-elevated: #141414;
+            --bg-card: #1a1a1a;
+            --text: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --border: #2a2a2a;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--gradient-1);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 1;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            background: rgba(10,10,10,0.8);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            position: sticky;
+            top: 80px;
+        }
+
+        .toc h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin: 0.5rem 0;
+        }
+
+        .toc a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .toc a:hover {
+            background: var(--bg-elevated);
+            color: var(--text);
+        }
+
+        .toc-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2 .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            font-size: 1.25rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--text);
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1.125rem;
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .info-card-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-card h4 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: var(--bg-elevated);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-language {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        pre {
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-elevated);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--secondary);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--text);
+        }
+
+        .comment { color: var(--text-muted); }
+        .string { color: #a5d6ff; }
+        .keyword { color: #ff7b72; }
+        .function { color: #d2a8ff; }
+
+        /* Steps */
+        .steps {
+            counter-reset: step;
+        }
+
+        .step {
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 40px;
+            bottom: -20px;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin: 0.75rem 0;
+            color: var(--text-secondary);
+        }
+
+        /* Tips & Warnings */
+        .tip, .warning, .danger {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .tip {
+            background: rgba(0,200,83,0.1);
+            border: 1px solid var(--secondary);
+        }
+
+        .warning {
+            background: rgba(255,196,0,0.1);
+            border: 1px solid var(--warning);
+        }
+
+        .danger {
+            background: rgba(255,23,68,0.1);
+            border: 1px solid var(--danger);
+        }
+
+        .tip-icon, .warning-icon, .danger-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .tip-content, .warning-content, .danger-content {
+            flex: 1;
+        }
+
+        .tip-title, .warning-title, .danger-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th {
+            background: var(--bg-elevated);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            background: var(--gradient-1);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        footer p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toc {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-logo">🦞 Moltbot Guide</div>
+        <div class="nav-links">
+            <a href="#prerequisites">Prerequisites</a>
+            <a href="#setup">Setup</a>
+            <a href="#mcp">MCP Servers</a>
+            <a href="#commands">Commands</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">🚀 Complete Deployment Guide</div>
+            <h1>Deploy Moltbot + Telegram on DigitalOcean</h1>
+            <p class="hero-subtitle">Transform your DigitalOcean droplet into a 24/7 AI freelance developer that codes, researches, and manages tasks via Telegram</p>
+            <div class="hero-meta">
+                <span>⏱️ 30 min setup</span>
+                <span>💰 $12/month</span>
+                <span>🤖 AI-Powered</span>
+                <span>📱 Telegram Control</span>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+            </svg>
+        </div>
+    </header>
+
+    <main class="container">
+        <aside class="toc">
+            <h2>📋 Table of Contents</h2>
+            <ul>
+                <li><a href="#prerequisites"><span class="toc-number">1</span> Prerequisites</a></li>
+                <li><a href="#telegram"><span class="toc-number">2</span> Create Telegram Bot</a></li>
+                <li><a href="#setup"><span class="toc-number">3</span> Setup DigitalOcean</a></li>
+                <li><a href="#configure"><span class="toc-number">4</span> Configure Moltbot</a></li>
+                <li><a href="#mcp"><span class="toc-number">5</span> Install MCP Servers</a></li>
+                <li><a href="#commands"><span class="toc-number">6</span> Using Commands</a></li>
+                <li><a href="#examples"><span class="toc-number">7</span> Real Examples</a></li>
+                <li><a href="#troubleshooting"><span class="toc-number">8</span> Troubleshooting</a></li>
+            </ul>
+        </aside>
+
+        <section id="prerequisites">
+            <h2><span class="section-number">1</span> Prerequisites</h2>
+            <p>Before we begin, you'll need a few things ready. Don't worry - they're all free or have free tiers.</p>
+            
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-icon">💳</div>
+                    <h4>DigitalOcean Account</h4>
+                    <p>Sign up at digitalocean.com. New users get $200 free credit for 60 days.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">💬</div>
+                    <h4>Telegram Account</h4>
+                    <p>Download Telegram on your phone. We'll create a bot using @BotFather.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">🤖</div>
+                    <h4>AI API Key</h4>
+                    <p>Get an API key from Anthropic, OpenAI, or Google. Anthropic recommended for coding.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">🔑</div>
+                    <h4>SSH Key (Optional)</h4>
+                    <p>For secure server access. Generate with: ssh-keygen -t ed25519</p>
+                </div>
+            </div>
+
+            <div class="tip">
+                <div class="tip-icon">💡</div>
+                <div class="tip-content">
+                    <div class="tip-title">Pro Tip</div>
+                    <p>Use Anthropic's Claude 3.5 Sonnet for the best coding experience. It's specifically trained on code and outperforms GPT-4 for development tasks.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="telegram">
+            <h2><span class="section-number">2</span> Create Your Telegram Bot</h2>
+            <p>Your Telegram bot will be the control interface for your AI developer. Here's how to create it:</p>
+
+            <div class="steps">
+                <div class="step">
+                    <h3>Open Telegram and Find @BotFather</h3>
+                    <p>Search for "BotFather" in Telegram (it's the official bot for creating bots). Start a chat and type: <code>/newbot</code></p>
+                </div>
+                <div class="step">
+                    <h3>Name Your Bot</h3>
+                    <p>Choose a display name (e.g., "My AI Developer") and then a username that must end in "bot" (e.g., "myai_dev_bot")</p>
+                </div>
+                <div class="step">
+                    <h3>Save the API Token</h3>
+                    <p>BotFather will give you a token like: <code>123456789:ABCdefGHIjklMNOpqrSTUvwxyz</code>. Save this - you'll need it later!</p>
+                </div>
+                <div class="step">
+                    <h3>Get Your User ID</h3>
+                    <p>Message @userinfobot on Telegram. It will reply with your user ID (a number like 123456789). Save this too.</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">Tokens to Save</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText('TELEGRAM_BOT_TOKEN: your_token_here\nYOUR_USER_ID: your_user_id_here')">Copy</button>
+                </div>
+                <pre>TELEGRAM_BOT_TOKEN: 123456789:ABCdefGHIjklMNOpqrSTUvwxyz
+YOUR_USER_ID: 123456789</pre>
+            </div>
+        </section>
+
+        <section id="setup">
+            <h2><span class="section-number">3</span> Setup DigitalOcean Droplet</h2>
+            <p>Now let's create your server that will run Moltbot 24/7. This is easier than you think!</p>
+
+            <h3>Option A: 1-Click Marketplace (Easiest)</h3>
+            <div class="steps">
+                <div class="step">
+                    <h3>Go to DigitalOcean Marketplace</h3>
+                    <p>Visit <a href="https://marketplace.digitalocean.com/apps/moltbot" style="color: var(--primary);">marketplace.digitalocean.com/apps/moltbot</a> and click "Create Moltbot Droplet"</p>
+                </div>
+                <div class="step">
+                    <h3>Choose Your Plan</h3>
+                    <p>Select "Basic" plan with at least 2GB RAM ($12/month recommended for production use)</p>
+                </div>
+                <div class="step">
+                    <h3>Select Datacenter</h3>
+                    <p>Pick a region close to you (e.g., New York, London, Singapore)</p>
+                </div>
+                <div class="step">
+                    <h3>Authentication</h3>
+                    <p>Choose "SSH Key" (recommended) or password. Add your SSH key if you have one.</p>
+                </div>
+                <div class="step">
+                    <h3>Create and Wait</h3>
+                    <p>Click "Create Droplet". Wait 2-3 minutes for it to be ready. You'll receive an email with the IP address.</p>
+                </div>
+            </div>
+
+            <h3>Option B: Manual Setup (More Control)</h3>
+            <p>If you prefer manual installation:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre><span class="comment"># SSH into your droplet</span>
+ssh root@YOUR_DROPLET_IP
+
+<span class="comment"># Update system</span>
+apt update && apt upgrade -y
+
+<span class="comment"># Install Docker</span>
+curl -fsSL https://get.docker.com | sh
+
+<span class="comment"># Run Moltbot container</span>
+docker run -d \
+  --name moltbot \
+  -p 3000:3000 \
+  -e TELEGRAM_BOT_TOKEN=YOUR_TOKEN \
+  -e ANTHROPIC_API_KEY=YOUR_KEY \
+  -v moltbot-data:/app/data \
+  moltbot/moltbot:latest</pre>
+            </div>
+        </section>
+
+        <section id="configure">
+            <h2><span class="section-number">4</span> Configure Moltbot</h2>
+            <p>Now let's configure Moltbot to be your personal freelance coder. We'll set up coding capabilities, task management, and security.</p>
+
+            <h3>Step 1: SSH Into Your Server</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre>ssh root@YOUR_DROPLET_IP</pre>
+            </div>
+
+            <h3>Step 2: Create Configuration Directory</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre><span class="comment"># Create directories</span>
+mkdir -p /etc/moltbot
+mkdir -p /home/moltbot/projects
+mkdir -p /home/moltbot/notes
+mkdir -p /home/moltbot/data
+
+<span class="comment"># Create moltbot user</span>
+useradd -m -s /bin/bash moltbot
+chown -R moltbot:moltbot /home/moltbot</pre>
+            </div>
+
+            <h3>Step 3: Set Up Environment Variables</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre><span class="comment"># Create .env file</span>
+nano /etc/moltbot/.env
+
+<span class="comment"># Add these lines (replace with your actual values):</span>
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+YOUR_TELEGRAM_USER_ID=your_telegram_user_id
+ANTHROPIC_API_KEY=your_anthropic_api_key_here</pre>
+            </div>
+
+            <div class="warning">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-content">
+                    <div class="warning-title">Security Warning</div>
+                    <p>Never share your .env file or commit it to git! These are your private API keys. The .env file should have permissions 600 (read/write only by owner).</p>
+                </div>
+            </div>
+
+            <h3>Step 4: Create Main Configuration</h3>
+            <p>Save this comprehensive configuration to <code>/etc/moltbot/config.yaml</code>:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">yaml</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre>telegram:
+  enabled: true
+  bot_token: "${TELEGRAM_BOT_TOKEN}"
+  allowed_users:
+    - ${YOUR_TELEGRAM_USER_ID}
+
+ai:
+  provider: anthropic
+  api_key: "${ANTHROPIC_API_KEY}"
+  model: "claude-3-5-sonnet-20241022"
+
+developer_mode:
+  enabled: true
+  auto_save_code: true
+  code_directory: "/home/moltbot/projects"
+  preferred_languages:
+    - python
+    - javascript
+    - typescript
+    - go
+    - bash
+
+tasks:
+  enabled: true
+  storage_path: "/home/moltbot/data/tasks"
+
+filesystem:
+  enabled: true
+  allowed_paths:
+    - "/home/moltbot/projects"
+    - "/home/moltbot/notes"
+    - "/tmp"
+  blocked_paths:
+    - "/etc"
+    - "/root"
+    - "/usr/bin"
+
+terminal:
+  enabled: true
+  allowed_commands:
+    - "git"
+    - "python"
+    - "python3"
+    - "node"
+    - "npm"
+    - "pip"
+    - "mkdir"
+    - "ls"
+    - "cat"
+    - "curl"
+  max_execution_time: 300</pre>
+            </div>
+        </section>
+
+        <section id="mcp">
+            <h2><span class="section-number">5</span> Install MCP Servers</h2>
+            <p>MCP (Model Context Protocol) servers give your bot superpowers - browsers, terminal access, file system, and 8000+ app integrations!</p>
+
+            <h3>Install Required Dependencies</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre><span class="comment"># Install Node.js 18+</span>
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+apt-get install -y nodejs
+
+<span class="comment"># Install MCP servers globally</span>
+npm install -g @executeautomation/playwright-mcp-server
+npm install -g @modelcontextprotocol/server-filesystem
+npm install -g @modelcontextprotocol/server-terminal
+
+<span class="comment"># Install Playwright browsers</span>
+npx playwright install firefox
+npx playwright install chromium</pre>
+            </div>
+
+            <h3>Configure MCP Servers</h3>
+            <p>Create <code>/etc/moltbot/mcp.json</code>:</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">json</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre>{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/moltbot/projects"]
+    },
+    "terminal": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-terminal"]
+    }
+  }
+}</pre>
+            </div>
+
+            <h3>Start Moltbot</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre><span class="comment"># Start Moltbot service</span>
+systemctl start moltbot
+
+<span class="comment"># Enable auto-start</span>
+systemctl enable moltbot
+
+<span class="comment"># Check status</span>
+systemctl status moltbot
+
+<span class="comment"># View logs in real-time</span>
+journalctl -u moltbot -f</pre>
+            </div>
+
+            <div class="tip">
+                <div class="tip-icon">🎉</div>
+                <div class="tip-content">
+                    <div class="tip-title">Success!</div>
+                    <p>If you see "Bot started successfully" in the logs, your Moltbot is now running! Open Telegram and message your bot to start working together.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="commands">
+            <h2><span class="section-number">6</span> Using Commands</h2>
+            <p>Here are the most useful commands to interact with your AI developer via Telegram:</p>
+
+            <h3>💻 Coding Commands</h3>
+            <table>
+                <tr>
+                    <th>Command</th>
+                    <th>What It Does</th>
+                </tr>
+                <tr>
+                    <td><code>Create a Python function to...</code></td>
+                    <td>Generates code in Python</td>
+                </tr>
+                <tr>
+                    <td><code>Debug this error: [paste error]</code></td>
+                    <td>Analyzes and fixes errors</td>
+                </tr>
+                <tr>
+                    <td><code>Review this code</code></td>
+                    <td>Suggests improvements</td>
+                </tr>
+                <tr>
+                    <td><code>Run the code</code></td>
+                    <td>Executes scripts</td>
+                </tr>
+                <tr>
+                    <td><code>Generate tests for [file]</code></td>
+                    <td>Creates test cases</td>
+                </tr>
+            </table>
+
+            <h3>📁 File Management</h3>
+            <table>
+                <tr>
+                    <th>Command</th>
+                    <th>What It Does</th>
+                </tr>
+                <tr>
+                    <td><code>List files in [directory]</code></td>
+                    <td>Shows directory contents</td>
+                </tr>
+                <tr>
+                    <td><code>Read [filename]</code></td>
+                    <td>Displays file content</td>
+                </tr>
+                <tr>
+                    <td><code>Create file [name]</code></td>
+                    <td>Creates new files</td>
+                </tr>
+                <tr>
+                    <td><code>Update [file] to...</code></td>
+                    <td>Modifies existing files</td>
+                </tr>
+            </table>
+
+            <h3>🌐 Web & Research</h3>
+            <table>
+                <tr>
+                    <th>Command</th>
+                    <th>What It Does</th>
+                </tr>
+                <tr>
+                    <td><code>Research [topic]</code></td>
+                    <td>Browses web and summarizes</td>
+                </tr>
+                <tr>
+                    <td><code>Go to [website] and...</code></td>
+                    <td>Automates browser actions</td>
+                </tr>
+                <tr>
+                    <td><code>Scrape data from [site]</code></td>
+                    <td>Extracts structured data</td>
+                </tr>
+                <tr>
+                    <td><code>Download [file] from [URL]</code></td>
+                    <td>Downloads files</td>
+                </tr>
+            </table>
+
+            <h3>🗂️ Task Management</h3>
+            <table>
+                <tr>
+                    <th>Command</th>
+                    <th>What It Does</th>
+                </tr>
+                <tr>
+                    <td><code>Add task: [description], priority high</code></td>
+                    <td>Creates a new task</td>
+                </tr>
+                <tr>
+                    <td><code>Show my pending tasks</code></td>
+                    <td>Lists all tasks</td>
+                </tr>
+                <tr>
+                    <td><code>Complete task [name]</code></td>
+                    <td>Marks task done</td>
+                </tr>
+                <tr>
+                    <td><code>Daily summary</code></td>
+                    <td>Shows what was accomplished</td>
+                </tr>
+            </table>
+        </section>
+
+        <section id="examples">
+            <h2><span class="section-number">7</span> Real-World Examples</h2>
+            <p>Let me show you actual conversations with Moltbot to demonstrate what it can do:</p>
+
+            <h3>Example 1: Building a Web Scraper</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">Conversation</span>
+                </div>
+                <pre>You: Create a Python script that scrapes Hacker News top stories and 
+saves them to a JSON file. Use BeautifulSoup and requests.
+
+Bot: I'll create a web scraper for Hacker News. Let me write the code...
+
+[Creates /home/moltbot/projects/hn_scraper.py]
+
+Bot: ✅ Created the scraper! Here's what it does:
+- Fetches the HN homepage
+- Extracts title, URL, points, and comments
+- Saves to hackernews_stories.json
+- Includes error handling
+
+You: Run it
+
+Bot: 🚀 Running the scraper...
+
+[Executes script]
+
+Bot: ✅ Success! Scraped 30 stories. Here's a preview:
+1. "Show HN: My new project" - 234 points
+2. "The future of AI coding" - 189 points
+3. ... (27 more stories)
+
+Saved to: hackernews_stories.json</pre>
+            </div>
+
+            <h3>Example 2: Debugging an Issue</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">Conversation</span>
+                </div>
+                <pre>You: I'm getting this error: "ModuleNotFoundError: No module named 
+'pandas'" when running my script. Can you help?
+
+Bot: 🔍 Let me investigate this import error...
+
+[Checks environment, installed packages]
+
+Bot: Found the issue! Pandas is not installed in your Python environment.
+Here are the solutions:
+
+Option 1: Install pandas
+<code>pip install pandas</code>
+
+Option 2: Use the virtual environment I set up
+<code>source /home/moltbot/venv/bin/activate && pip install pandas</code>
+
+Shall I install it for you?
+
+You: Yes, install it
+
+Bot: 🛠️ Installing pandas...
+
+[Runs pip install pandas]
+
+Bot: ✅ Successfully installed pandas 2.1.4! 
+Your script should work now. Try running it again.</pre>
+            </div>
+
+            <h3>Example 3: Research & Report</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">Conversation</span>
+                </div>
+                <pre>You: Research the top 5 Python web frameworks in 2025 and create a 
+comparison report saved to research.md
+
+Bot: 🔍 Starting research on Python web frameworks...
+
+[Browses Python.org, Django docs, FastAPI docs, Flask docs, 
+Tornado docs, Hacker News discussions]
+
+Bot: 📊 Analysis complete. Creating comparison report...
+
+[Generates comprehensive markdown report]
+
+Bot: ✅ Research report created! Key findings:
+
+Top 5 Frameworks:
+1. FastAPI - Best for modern APIs (async, automatic docs)
+2. Django - Best for full-stack apps (batteries included)
+3. Flask - Best for microservices (lightweight, flexible)
+4. Tornado - Best for WebSockets (real-time apps)
+5. Bottle - Best for prototypes (single file)
+
+Full comparison saved to: /home/moltbot/notes/python_frameworks_2025.md
+
+The report includes:
+- Performance benchmarks
+- Feature comparisons
+- Community size data
+- When to use each framework
+- Code examples</pre>
+            </div>
+        </section>
+
+        <section id="troubleshooting">
+            <h2><span class="section-number">8</span> Troubleshooting</h2>
+            <p>Running into issues? Here are common problems and solutions:</p>
+
+            <h3>Bot Not Responding</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre><span class="comment"># Check if service is running</span>
+systemctl status moltbot
+
+<span class="comment"># If not running, start it</span>
+systemctl start moltbot
+
+<span class="comment"># Check logs for errors</span>
+journalctl -u moltbot -n 50 --no-pager
+
+<span class="comment"># Test Telegram token</span>
+curl -s "https://api.telegram.org/botYOUR_TOKEN/getMe"</pre>
+            </div>
+
+            <h3>MCP Servers Not Working</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre><span class="comment"># Check if Playwright is installed</span>
+npx playwright --version
+
+<span class="comment"># Reinstall browsers if needed</span>
+npx playwright install
+
+<span class="comment"># Check MCP servers</span>
+which npx
+npm list -g @executeautomation/playwright-mcp-server</pre>
+            </div>
+
+            <h3>Permission Errors</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-language">bash</span>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">Copy</button>
+                </div>
+                <pre><span class="comment"># Fix ownership</span>
+chown -R moltbot:moltbot /home/moltbot
+chown -R moltbot:moltbot /etc/moltbot
+
+<span class="comment"># Fix permissions on .env</span>
+chmod 600 /etc/moltbot/.env</pre>
+            </div>
+
+            <div class="danger">
+                <div class="danger-icon">🚨</div>
+                <div class="danger-content">
+                    <div class="danger-title">Still Stuck?</div>
+                    <p>If you're still having issues after trying these solutions, check the <a href="https://docs.moltbot.com" style="color: var(--danger);">official Moltbot documentation</a> or join the <a href="https://discord.gg/moltbot" style="color: var(--danger);">Discord community</a> for help.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>🎉 You're All Set!</h2>
+            <p>Congratulations! You now have a 24/7 AI freelance developer living on DigitalOcean, ready to help you code, research, and manage tasks.</p>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-icon">💡</div>
+                    <h4>Start Small</h4>
+                    <p>Begin with simple tasks to get familiar with how your bot works.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">🔄</div>
+                    <h4>Iterate</h4>
+                    <p>The bot learns from context. Follow-up questions get better results.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">🔒</div>
+                    <h4>Stay Secure</h4>
+                    <p>Regular backups and security updates keep your setup safe.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon">🚀</div>
+                    <h4>Expand</h4>
+                    <p>Add more MCP servers and skills as you discover new needs.</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="#" class="btn" onclick="navigator.clipboard.writeText('ssh root@YOUR_DROPLET_IP'); alert('SSH command copied!')">📋 Copy SSH Command</a>
+                <a href="https://docs.moltbot.com" class="btn btn-secondary" style="margin-left: 1rem;">📚 Read Docs</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Made with ❤️ by your AI assistant | Deployed on DigitalOcean + GitHub Pages</p>
+        <p style="margin-top: 0.5rem; font-size: 0.875rem;">Last updated: January 2026</p>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight active section in TOC
+        const sections = document.querySelectorAll('section[id]');
+        const tocLinks = document.querySelectorAll('.toc a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.style.background = '';
+                link.style.color = '';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.background = 'var(--bg-elevated)';
+                    link.style.color = 'var(--text)';
+                }
+            });
+        });
+
+        // Add copy feedback
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const originalText = this.textContent;
+                this.textContent = '✓ Copied!';
+                this.style.background = 'var(--secondary)';
+                this.style.borderColor = 'var(--secondary)';
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.style.background = '';
+                    this.style.borderColor = '';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

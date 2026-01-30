@@ -1,0 +1,246 @@
+# Moltbot Skills Configuration
+# Enable/disable specific capabilities for your freelance coder
+
+skills:
+  # ============================================
+  # CORE CODING SKILLS
+  # ============================================
+  
+  code_generation:
+    enabled: true
+    description: "Generate code in multiple languages"
+    languages:
+      - python
+      - javascript
+      - typescript
+      - go
+      - rust
+      - html
+      - css
+      - sql
+      - bash
+    
+  code_review:
+    enabled: true
+    description: "Review and suggest improvements to code"
+    auto_run_on_save: true
+    
+  code_refactoring:
+    enabled: true
+    description: "Refactor and optimize existing code"
+    
+  debugging:
+    enabled: true
+    description: "Debug and fix code issues"
+    
+  testing:
+    enabled: true
+    description: "Generate and run tests"
+    frameworks:
+      python: "pytest"
+      javascript: "jest"
+      typescript: "jest"
+    auto_generate_tests: true
+    coverage_threshold: 80
+    
+  documentation:
+    enabled: true
+    description: "Generate code documentation"
+    auto_docstrings: true
+    generate_readme: true
+    
+  # ============================================
+  # PROJECT MANAGEMENT
+  # ============================================
+  
+  project_scaffolding:
+    enabled: true
+    description: "Create new project structures"
+    templates:
+      - python_package
+      - nodejs_app
+      - react_app
+      - flask_api
+      - fastapi_service
+      - docker_project
+      - chrome_extension
+      - cli_tool
+      
+  dependency_management:
+    enabled: true
+    description: "Manage project dependencies"
+    auto_update: false
+    security_audit: true
+    
+  git_workflow:
+    enabled: true
+    description: "Git operations and workflows"
+    auto_commit: true
+    commit_message_style: "conventional"  # conventional, simple, detailed
+    
+  # ============================================
+  # WEB DEVELOPMENT
+  # ============================================
+  
+  web_scraping:
+    enabled: true
+    description: "Extract data from websites"
+    respect_robots_txt: true
+    rate_limit: 1  # requests per second
+    
+  api_integration:
+    enabled: true
+    description: "Build and integrate with APIs"
+    auto_document: true
+    
+  frontend_development:
+    enabled: true
+    description: "Build user interfaces"
+    frameworks:
+      - react
+      - vue
+      - vanilla_js
+      - html_css
+      
+  backend_development:
+    enabled: true
+    description: "Build server-side applications"
+    frameworks:
+      - flask
+      - fastapi
+      - express
+      - django
+      - nodejs
+      
+  database_management:
+    enabled: true
+    description: "Database design and queries"
+    types:
+      - postgresql
+      - mysql
+      - sqlite
+      - mongodb
+      - redis
+    
+  # ============================================
+  # DEVOPS & DEPLOYMENT
+  # ============================================
+  
+  docker_management:
+    enabled: true
+    description: "Containerize applications"
+    
+  ci_cd:
+    enabled: true
+    description: "Setup CI/CD pipelines"
+    platforms:
+      - github_actions
+      - gitlab_ci
+      
+  deployment:
+    enabled: true
+    description: "Deploy applications"
+    platforms:
+      - digitalocean
+      - heroku
+      - vercel
+      - netlify
+      - aws
+      
+  monitoring:
+    enabled: true
+    description: "Setup application monitoring"
+    
+  # ============================================
+  # RESEARCH & ANALYSIS
+  # ============================================
+  
+  web_research:
+    enabled: true
+    description: "Research topics on the web"
+    
+  code_analysis:
+    enabled: true
+    description: "Analyze codebases for insights"
+    
+  technology_evaluation:
+    enabled: true
+    description: "Evaluate libraries and frameworks"
+    
+  competitive_analysis:
+    enabled: true
+    description: "Analyze competitors and alternatives"
+    
+  # ============================================
+  # COMMUNICATION
+  # ============================================
+  
+  task_management:
+    enabled: true
+    description: "Track and manage tasks"
+    
+  progress_reporting:
+    enabled: true
+    description: "Report on project progress"
+    frequency: "daily"  # daily, weekly, on_demand
+    
+  code_explanation:
+    enabled: true
+    description: "Explain code in plain English"
+    
+  tutorial_creation:
+    enabled: true
+    description: "Create tutorials and guides"
+    
+  # ============================================
+  # ADVANCED FEATURES
+  # ============================================
+  
+  ai_assistance:
+    enabled: true
+    description: "AI-powered coding assistance"
+    
+  autocomplete:
+    enabled: true
+    description: "Smart code completion"
+    
+  error_prediction:
+    enabled: true
+    description: "Predict and prevent errors"
+    
+  performance_optimization:
+    enabled: true
+    description: "Optimize code performance"
+    
+  security_audit:
+    enabled: true
+    description: "Check for security vulnerabilities"
+    
+  accessibility_check:
+    enabled: true
+    description: "Ensure web accessibility compliance"
+
+# ============================================
+# SKILL PRIORITIES
+# ============================================
+
+priority:
+  # High priority skills (always available)
+  high:
+    - code_generation
+    - debugging
+    - git_workflow
+    - project_scaffolding
+    
+  # Medium priority (context-dependent)
+  medium:
+    - web_scraping
+    - deployment
+    - testing
+    - documentation
+    
+  # Low priority (on-demand)
+  low:
+    - competitive_analysis
+    - tutorial_creation
+    - accessibility_check
