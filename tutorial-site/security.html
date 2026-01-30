@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Security Guide - Protecting Your Moltbot | DigitalOcean Security</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --bg: #030712;
+            --bg-elevated: #0f172a;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --text: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(148, 163, 184, 0.1);
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --glass: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 80% 20%, rgba(239, 68, 68, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            background: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.25rem;
+            background: var(--gradient-danger);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .nav-links a.active {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .hero {
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--gradient-danger);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 1;
+            max-width: 900px;
+            padding: 2rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .main-layout {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            gap: 2rem;
+        }
+
+        .toc-sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding: 2rem 0 2rem 2rem;
+        }
+
+        .toc-container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .toc-container h2 {
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            color: var(--danger);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toc-container ul {
+            list-style: none;
+        }
+
+        .toc-container li {
+            margin: 0.35rem 0;
+        }
+
+        .toc-container a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 0.88rem;
+            border-left: 3px solid transparent;
+        }
+
+        .toc-container a:hover {
+            color: var(--text);
+            background: rgba(239, 68, 68, 0.1);
+            border-left-color: var(--danger);
+        }
+
+        .toc-container a.active {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, transparent 100%);
+            color: #fca5a5;
+            border-left-color: var(--danger);
+            font-weight: 600;
+        }
+
+        .toc-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 3rem 2rem;
+            max-width: 900px;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 100px;
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2.5rem 0 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2rem 0 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .security-alert {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            backdrop-filter: blur(10px);
+        }
+
+        .security-alert-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-danger);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            animation: iconPulse 2s infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+        }
+
+        .security-alert-content h3 {
+            margin: 0 0 0.5rem 0;
+            color: #fca5a5;
+        }
+
+        .checklist {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+            margin: 0 -1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-radius: 8px;
+        }
+
+        .checklist-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--secondary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-checkbox:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .checklist-checkbox.checked {
+            background: var(--secondary);
+        }
+
+        .checklist-content h4 {
+            margin: 0 0 0.25rem 0;
+            color: var(--text);
+        }
+
+        .checklist-content p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .code-block {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .code-language {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--danger);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+        }
+
+        .copy-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .copy-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        pre {
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: var(--text);
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #fca5a5;
+        }
+
+        .danger-box, .warning-box, .info-box {
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid;
+        }
+
+        .danger-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1.5rem 0;
+            background: var(--glass);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--danger);
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--gradient-danger);
+            z-index: 1001;
+            transition: width 0.3s;
+        }
+
+        footer {
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1100px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .toc-sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                height: auto;
+                padding: 1rem;
+                order: -1;
+            }
+
+            .toc-container {
+                max-height: 350px;
+                overflow-y: auto;
+            }
+
+            .content-area {
+                padding: 2rem 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+    </style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="bg-gradient"></div>
+<div class="particles" id="particles"></div>
+<nav class="nav" id="navbar">
+<div class="nav-logo">
+<i data-lucide="shield-alert" style="width: 24px; height: 24px;"></i>
+                Security Guide
+            </div>
+<div class="nav-links">
+<a href="index.html">
+<i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
+                    Setup Guide
+                </a>
+<a class="active" href="security.html">
+<i data-lucide="shield" style="width: 16px; height: 16px;"></i>
+                    Security
+                </a>
+<a href="https://github.com/axvg/moltbot-tuto" target="_blank">
+<i data-lucide="github" style="width: 16px; height: 16px;"></i>
+                    GitHub
+                </a>
+</div>
+</nav>
+<header class="hero">
+<div class="hero-content">
+<div class="hero-badge">
+<i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
+                    Critical Security Checklist
+                </div>
+<h1>🔒 Security Guide: Protect Your Moltbot</h1>
+<p class="hero-subtitle">
+                    Your DigitalOcean server is a target for hackers. Learn how to secure your Moltbot installation, 
+                    prevent data leaks, close vulnerable ports, and stop unauthorized access before it happens.
+                </p>
+</div>
+</header>
+<div class="main-layout">
+<aside class="toc-sidebar">
+<div class="toc-container">
+<h2><i data-lucide="list-filter" style="width: 16px; height: 16px;"></i> Security Topics</h2>
+<ul>
+<li><a class="toc-link" href="#overview"><i data-lucide="shield" style="width: 16px; height: 16px;"></i> Why Security Matters</a></li>
+<li><a class="toc-link" href="#ports"><i data-lucide="network" style="width: 16px; height: 16px;"></i> Port Security</a></li>
+<li><a class="toc-link" href="#firewall"><i data-lucide="firewall" style="width: 16px; height: 16px;"></i> Firewall Setup</a></li>
+<li><a class="toc-link" href="#ssh"><i data-lucide="terminal" style="width: 16px; height: 16px;"></i> SSH Hardening</a></li>
+<li><a class="toc-link" href="#tokens"><i data-lucide="key" style="width: 16px; height: 16px;"></i> API Tokens</a></li>
+<li><a class="toc-link" href="#env"><i data-lucide="file-lock" style="width: 16px; height: 16px;"></i> Environment Files</a></li>
+<li><a class="toc-link" href="#mcp"><i data-lucide="plug" style="width: 16px; height: 16px;"></i> MCP Server Security</a></li>
+<li><a class="toc-link" href="#monitoring"><i data-lucide="activity" style="width: 16px; height: 16px;"></i> Monitoring</a></li>
+<li><a class="toc-link" href="#checklist"><i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Full Checklist</a></li>
+</ul>
+</div>
+</aside>
+<main class="content-area">
+<section class="reveal" id="overview">
+<div class="security-alert">
+<div class="security-alert-icon">
+<i data-lucide="alert-octagon" style="width: 24px; height: 24px; color: white;"></i>
+</div>
+<div class="security-alert-content">
+<h3>⚠️ Your Server is a Target</h3>
+<p>
+                        Within <strong>24 hours</strong> of creating a DigitalOcean droplet, automated bots will start scanning 
+                        for open ports and weak passwords. Without proper security, attackers can steal your API keys, 
+                        access your Telegram bot, mine cryptocurrency on your server, or use it for DDoS attacks.
+                    </p>
+</div>
+</div>
+<h2><i data-lucide="target" style="width: 32px; height: 32px; color: var(--danger);"></i> What Attackers Look For</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 2rem 0;">
+<div class="danger-box">
+<h4 style="margin-top: 0;"><i data-lucide="door-open" style="width: 20px; height: 20px;"></i> Open Ports</h4>
+<p style="margin-bottom: 0; font-size: 0.95rem;">SSH on port 22 with password auth, exposed databases, or unnecessary services</p>
+</div>
+<div class="danger-box">
+<h4 style="margin-top: 0;"><i data-lucide="file-key" style="width: 20px; height: 20px;"></i> Leaked Credentials</h4>
+<p style="margin-bottom: 0; font-size: 0.95rem;">API keys in git repos, .env files with 644 permissions, hardcoded passwords</p>
+</div>
+<div class="danger-box">
+<h4 style="margin-top: 0;"><i data-lucide="user-x" style="width: 20px; height: 20px;"></i> Default Users</h4>
+<p style="margin-bottom: 0; font-size: 0.95rem;">Running as root, weak passwords, no sudo restrictions</p>
+</div>
+<div class="danger-box">
+<h4 style="margin-top: 0;"><i data-lucide="bug" style="width: 20px; height: 20px;"></i> Outdated Software</h4>
+<p style="margin-bottom: 0; font-size: 0.95rem;">Old Node.js versions, unpatched system packages, vulnerable MCP servers</p>
+</div>
+</div>
+</section>
+<section class="reveal" id="ports">
+<h2><i data-lucide="network" style="width: 32px; height: 32px; color: var(--danger);"></i> Port Security: Close Everything</h2>
+<p>By default, your DigitalOcean droplet may have unnecessary ports open. Here's what you need to know:</p>
+<h3>Default Open Ports (Before You Start)</h3>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Service</th>
+<th>Risk Level</th>
+<th>Action Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22</td>
+<td>SSH</td>
+<td style="color: var(--warning);">⚠️ HIGH</td>
+<td>Change to key-based auth, move to non-standard port</td>
+</tr>
+<tr>
+<td>80</td>
+<td>HTTP</td>
+<td style="color: var(--secondary);">✓ OK if needed</td>
+<td>Only if running web server; redirect to HTTPS</td>
+</tr>
+<tr>
+<td>443</td>
+<td>HTTPS</td>
+<td style="color: var(--secondary);">✓ OK if needed</td>
+<td>Required for web interface; keep updated</td>
+</tr>
+<tr>
+<td>3000</td>
+<td>Moltbot Gateway</td>
+<td style="color: var(--warning);">⚠️ MEDIUM</td>
+<td>Restrict to your IP only or use VPN</td>
+</tr>
+<tr>
+<td>5432</td>
+<td>PostgreSQL</td>
+<td style="color: var(--danger);">🔴 CRITICAL</td>
+<td>NEVER expose to internet; use localhost only</td>
+</tr>
+<tr>
+<td>6379</td>
+<td>Redis</td>
+<td style="color: var(--danger);">🔴 CRITICAL</td>
+<td>NEVER expose to internet; bind to 127.0.0.1</td>
+</tr>
+<tr>
+<td>8080</td>
+<td>Alternate HTTP</td>
+<td style="color: var(--warning);">⚠️ HIGH</td>
+<td>Close if not needed; common attack vector</td>
+</tr>
+</tbody>
+</table>
+<h3>Check Your Open Ports</h3>
+<div class="code-block">
+<div class="code-header">
+<span class="code-language">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">
+<i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy
+                    </button>
+</div>
+<pre><span class="comment"># List all listening ports</span>
+sudo ss -tuln
+
+<span class="comment"># Check which services are using ports</span>
+sudo lsof -i -P -n
+
+<span class="comment"># Scan your own server for open ports</span>
+nmap -sT -O localhost
+
+<span class="comment"># Check from outside (run from another server)</span>
+nmap -p 1-65535 YOUR_DROPLET_IP</pre>
+</div>
+<div class="warning-box">
+<p style="margin: 0;"><strong>🔍 Pro Tip:</strong> Use <code>sudo ufw status verbose</code> to see exactly which ports are open and what rules are active.</p>
+</div>
+</section>
+<section class="reveal" id="firewall">
+<h2><i data-lucide="firewall" style="width: 32px; height: 32px; color: var(--danger);"></i> UFW Firewall: Your First Line of Defense</h2>
+<p>UFW (Uncomplicated Firewall) is essential. Here's the secure configuration:</p>
+<h3>Step-by-Step UFW Setup</h3>
+<div class="code-block">
+<div class="code-header">
+<span class="code-language">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">
+<i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy
+                    </button>
+</div>
+<pre><span class="comment"># Install UFW if not present</span>
+sudo apt install ufw -y
+
+<span class="comment"># DENY all incoming by default</span>
+sudo ufw default deny incoming
+
+<span class="comment"># ALLOW all outgoing (needed for Telegram API, etc)</span>
+sudo ufw default allow outgoing
+
+<span class="comment"># Allow SSH (change port if you moved it)</span>
+sudo ufw allow 22/tcp
+
+<span class="comment"># Allow Moltbot Gateway ONLY from your IP</span>
+sudo ufw allow from YOUR_HOME_IP to any port 3000
+
+<span class="comment"># If you need HTTPS access</span>
+sudo ufw allow 443/tcp
+
+<span class="comment"># Explicitly deny dangerous ports</span>
+sudo ufw deny 3306/tcp  <span class="comment"># MySQL</span>
+sudo ufw deny 5432/tcp  <span class="comment"># PostgreSQL</span>
+sudo ufw deny 6379/tcp  <span class="comment"># Redis</span>
+sudo ufw deny 27017/tcp <span class="comment"># MongoDB</span>
+
+<span class="comment"># Enable firewall (be careful - ensure SSH is allowed!)</span>
+sudo ufw enable
+
+<span class="comment"># Verify rules</span>
+sudo ufw status verbose numbered</pre>
+</div>
+<h3>Restrict Moltbot Gateway by IP</h3>
+<p>The Moltbot web gateway (port 3000) should never be publicly accessible. Restrict it:</p>
+<div class="code-block">
+<div class="code-header">
+<span class="code-language">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">
+<i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy
+                    </button>
+</div>
+<pre><span class="comment"># Find your home IP</span>
+curl ifconfig.me
+
+<span class="comment"># Allow only your IP to access port 3000</span>
+sudo ufw allow from 203.0.113.42 to any port 3000 proto tcp
+
+<span class="comment"># Or use a VPN IP range</span>
+sudo ufw allow from 10.8.0.0/24 to any port 3000 proto tcp</pre>
+</div>
+</section>
+<section class="reveal" id="ssh">
+<h2><i data-lucide="terminal" style="width: 32px; height: 32px; color: var(--danger);"></i> SSH Hardening: Prevent Brute Force</h2>
+<p>SSH is the #1 attack vector. Here's how to secure it:</p>
+<h3>1. Disable Password Authentication</h3>
+<div class="danger-box">
+<p style="margin: 0;"><strong>⚠️ CRITICAL:</strong> Before disabling passwords, ensure your SSH key is working! Keep a second terminal open as backup.</p>
+</div>
+<div class="code-block">
+<div class="code-header">
+<span class="code-language">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">
+<i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy
+                    </button>
+</div>
+<pre>sudo nano /etc/ssh/sshd_config
+
+<span class="comment"># Find and modify these lines:</span>
+PasswordAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+MaxAuthTries 3
+ClientAliveInterval 300
+ClientAliveCountMax 2
+AllowUsers moltbot yourusername
+
+<span class="comment"># Restart SSH</span>
+sudo systemctl restart sshd</pre>
+</div>
+<h3>2. Change SSH Port (Security Through Obscurity)</h3>
+<div class="code-block">
+<div class="code-header">
+<span class="code-language">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">
+<i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy
+                    </button>
+</div>
+<pre><span class="comment"># Edit SSH config</span>
+sudo nano /etc/ssh/sshd_config
+
+<span class="comment"># Change port from 22 to something else (e.g., 2222)</span>
+Port 2222
+
+<span class="comment"># Update UFW</span>
+sudo ufw allow 2222/tcp
+sudo ufw delete allow 22/tcp
+
+<span class="comment"># Restart</span>
+sudo systemctl restart sshd
+
+<span class="comment"># Connect using new port</span>
+ssh -p 2222 root@YOUR_DROPLET_IP</pre>
+</div>
+<h3>3. Install Fail2Ban (Auto-ban Attackers)</h3>
+<div class="code-block">
+<div class="code-header">
+<span class="code-language">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">
+<i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy
+                    </button>
+</div>
+<pre><span class="comment"># Install</span>
+sudo apt install fail2ban -y
+
+<span class="comment"># Create config</span>
+sudo nano /etc/fail2ban/jail.local
+
+<span class="comment"># Add this content:</span>
+[DEFAULT]
+bantime = 3600
+findtime = 600
+maxretry = 3
+
+[sshd]
+enabled = true
+port = ssh,2222
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+
+<span class="comment"># Start</span>
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+
+<span class="comment"># Check banned IPs</span>
+sudo fail2ban-client status sshd</pre>
+</div>
+</section>
+<section class="reveal" id="tokens">
+<h2><i data-lucide="key" style="width: 32px; height: 32px; color: var(--danger);"></i> Protect API Tokens &amp; Credentials</h2>
+<p>Your API tokens are the keys to your kingdom. Here's how to protect them:</p>
+<h3>Common Token Leak Scenarios</h3>
+<table>
+<thead>
+<tr>
+<th>Mistake</th>
+<th>Risk</th>
+<th>How to Check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Committing .env to git</td>
+<td style="color: var(--danger);">🔴 CRITICAL</td>
+<td><code>git log --all --source --full-history -S 'sk-'</code></td>
+</tr>
+<tr>
+<td>644 permissions on .env</td>
+<td style="color: var(--danger);">🔴 HIGH</td>
+<td><code>ls -la /etc/moltbot/</code></td>
+</tr>
+<tr>
+<td>Logging tokens in console</td>
+<td style="color: var(--warning);">⚠️ MEDIUM</td>
+<td>Check <code>journalctl -u moltbot</code></td>
+</tr>
+<tr>
+<td>Hardcoding in scripts</td>
+<td style="color: var(--danger);">🔴 CRITICAL</td>
+<td><code>grep -r 'sk-' /home/moltbot/</code></td>
+</tr>
+<tr>
+<td>Backup with tokens</td>
+<td style="color: var(--warning);">⚠️ MEDIUM</td>
+<td>Always exclude .env from backups</td>
+</tr>
+</tbody>
+</table>
+<h3>Secure Token Storage</h3>
+<div class="code-block">
+<div class="code-header">
+<span class="code-language">bash</span>
+<button class="copy-btn" onclick="copyCode(this)">
+<i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy
+                    </button>
+</div>
+<pre><span class="comment"># Set correct permissions</span>
+sudo chmod 600 /etc/moltbot/.env
+sudo chown moltbot:moltbot /etc/moltbot/.env
+
+<span class="comment"># Verify</span>
+ls -la /etc/moltbot/
+<span class="comment"># Should show: -rw------- 1 moltbot moltbot</span>
+
+<span class="comment"># Add to .gitignore (if in git repo)</span>
+echo ".env" &gt;&gt; .gitignore
+echo "*.env" &gt;&gt; .gitignore
+echo ".env.*" &gt;&gt; .gitignore
+
+<span class="comment"># Prevent accidental commits</span>
+git config --global credential.helper cache
+git config --global credential.helper 'cache --timeout=3600'</pre>
+</div>
+<div class="danger-box">
+<p style="margin: 0;"><strong>🚨 EMERGENCY:</strong> If you leak a token, revoke it immediately! Anthropic, OpenAI, and Telegram all allow instant revocation in their dashboards.</p>
+</div>
+</section>
+<section class="reveal" id="checklist">
+<h2><i data-lucide="check-circle" style="width: 32px; height: 32px; color: var(--secondary);"></i> Complete Security Checklist</h2>
+<p>Print this checklist and verify each item:</p>
+<div class="checklist" id="securityChecklist">
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>UFW Firewall Enabled</h4>
+<p>Default deny incoming, only ports 22, 443, and 3000 (IP-restricted) allowed</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>SSH Key Authentication Only</h4>
+<p>PasswordAuthentication disabled, PermitRootLogin no</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>Fail2Ban Installed &amp; Running</h4>
+<p>Ban after 3 failed attempts, check with: sudo fail2ban-client status</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>.env File Permissions 600</h4>
+<p>Owned by moltbot:moltbot, not readable by others. Verify: ls -la /etc/moltbot/</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>No Database Ports Exposed</h4>
+<p>PostgreSQL, Redis, MongoDB all bound to 127.0.0.1 only</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>Moltbot Gateway IP-Restricted</h4>
+<p>Port 3000 only accessible from your home IP or VPN</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>Regular Security Updates</h4>
+<p>Automatic updates enabled: sudo apt install unattended-upgrades</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>Audit Logging Enabled</h4>
+<p>All commands logged to /var/log/moltbot/audit.log</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>Backup Excludes Sensitive Data</h4>
+<p>.env, SSH keys, and logs excluded from backups</p>
+</div>
+</div>
+<div class="checklist-item" onclick="toggleCheck(this)">
+<div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
+<div class="checklist-content">
+<h4>Telegram Bot Token Validated</h4>
+<p>Only your user ID can access the bot (check allowed_users in config)</p>
+</div>
+</div>
+</div>
+<div style="text-align: center; margin-top: 2rem;">
+<button class="btn btn-danger" onclick="resetChecklist()">
+<i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i>
+                    Reset Checklist
+                </button>
+</div>
+</section>
+<div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05)); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 16px; padding: 2rem; text-align: center; margin-top: 3rem;">
+<h3 style="color: #fca5a5; margin-bottom: 1rem;"><i data-lucide="life-buoy" style="width: 24px; height: 24px;"></i> Compromised?</h3>
+<p style="margin-bottom: 1.5rem;">If you suspect your server has been hacked:</p>
+<div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+<a class="btn btn-danger" href="https://www.digitalocean.com/docs/droplets/how-to/recover-access/" target="_blank">
+<i data-lucide="power" style="width: 18px; height: 18px;"></i>
+                    Emergency Recovery
+                </a>
+<a class="btn btn-secondary" href="https://www.digitalocean.com/support" target="_blank">
+<i data-lucide="message-circle" style="width: 18px; height: 18px;"></i>
+                    Contact DO Support
+                </a>
+</div>
+</div>
+</main>
+</div>
+<footer>
+<p>Stay secure. Keep your tokens safe. Monitor your logs. 🛡️</p>
+<p style="margin-top: 0.5rem; font-size: 0.875rem;">Last updated: January 2026</p>
+</footer>
+<script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Create particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 25; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (20 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // GSAP animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.utils.toArray('.reveal').forEach((element) => {
+            gsap.fromTo(element, 
+                { opacity: 0, y: 40 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.7,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: element,
+                        start: 'top 85%',
+                        toggleActions: 'play none none reverse'
+                    }
+                }
+            );
+        });
+
+        // TOC highlighting
+        const sections = document.querySelectorAll('section[id]');
+        const tocLinks = document.querySelectorAll('.toc-link');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    tocLinks.forEach(link => link.classList.remove('active'));
+                    const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add('active');
+                        activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            });
+        }, { rootMargin: '-20% 0px -60% 0px' });
+
+        sections.forEach(section => observer.observe(section));
+
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        // Copy function
+        function copyCode(btn) {
+            const code = btn.closest('.code-block').querySelector('pre').textContent;
+            navigator.clipboard.writeText(code);
+            btn.innerHTML = '<i data-lucide="check" style="width: 14px; height: 14px;"></i> Copied!';
+            btn.style.background = 'var(--secondary)';
+            btn.style.borderColor = 'var(--secondary)';
+            lucide.createIcons();
+            setTimeout(() => {
+                btn.innerHTML = '<i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy';
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                lucide.createIcons();
+            }, 2000);
+        }
+
+        // Checklist toggle
+        function toggleCheck(item) {
+            const checkbox = item.querySelector('.checklist-checkbox');
+            const icon = checkbox.querySelector('i');
+            checkbox.classList.toggle('checked');
+            icon.style.display = checkbox.classList.contains('checked') ? 'block' : 'none';
+        }
+
+        function resetChecklist() {
+            document.querySelectorAll('.checklist-checkbox').forEach(box => {
+                box.classList.remove('checked');
+                box.querySelector('i').style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
