@@ -4,231 +4,48 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>How to Deploy OpenClaw + Telegram on DigitalOcean - Complete Guide</title>
+<title>Deploy OpenClaw - AI Engineering Team on DigitalOcean</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
-        :root {
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg: #030712;
-            --bg-elevated: #0f172a;
-            --bg-card: rgba(15, 23, 42, 0.6);
-            --text: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border: rgba(148, 163, 184, 0.1);
-            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
-            --gradient-2: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
-            --glass: rgba(15, 23, 42, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.08);
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d4d4d4;
+            --gray-400: #a3a3a3;
+            --gray-500: #737373;
+            --gray-600: #525252;
+            --gray-700: #404040;
+            --gray-800: #262626;
+            --gray-900: #171717;
+            --accent: #ff3d00;
+            --accent-light: #ff6b4a;
+            --success: #00c853;
+            --warning: #ffab00;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', -apple-system, sans-serif;
+        }
+
         html {
             scroll-behavior: smooth;
+            font-family: var(--font-sans);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: var(--white);
+            color: var(--black);
             line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Animated Background */
-        .bg-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(217, 70, 239, 0.05) 0%, transparent 70%);
-            animation: gradientPulse 8s ease-in-out infinite;
-        }
-
-        @keyframes gradientPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.1); }
-        }
-
-        /* Floating particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(99, 102, 241, 0.3);
-            border-radius: 50%;
-            animation: float 15s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .main-layout {
-            position: relative;
-            z-index: 10;
-            background: var(--bg);
-        }
-
-        .hero-content {
-            text-align: center;
-            z-index: 1;
-            max-width: 900px;
-            padding: 2rem;
-            animation: fadeInUp 1s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 50px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 2rem;
-            border: 1px solid var(--glass-border);
-            animation: pulse 2s infinite;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .hero-badge:hover {
-            background: rgba(99, 102, 241, 0.2);
-            transform: scale(1.05);
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-            50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
-        }
-
-        .hero h1 {
-            font-size: clamp(2.5rem, 5vw, 4.5rem);
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.2); }
-        }
-
-        .hero-subtitle {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto 2rem;
-            animation: fadeInUp 1s ease-out 0.2s backwards;
-        }
-
-        .hero-meta {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            font-size: 0.9rem;
-            animation: fadeInUp 1s ease-out 0.4s backwards;
-        }
-
-        .hero-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg-card);
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .hero-meta span:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: bounce 2s infinite;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .scroll-indicator:hover {
-            transform: translateX(-50%) scale(1.2);
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-            40% { transform: translateX(-50%) translateY(-10px); }
-            60% { transform: translateX(-50%) translateY(-5px); }
         }
 
         /* Navigation */
@@ -237,721 +54,585 @@
             top: 0;
             left: 0;
             right: 0;
-            padding: 1rem 2rem;
-            background: rgba(3, 7, 18, 0.8);
-            backdrop-filter: blur(20px);
+            background: var(--white);
+            border-bottom: 2px solid var(--black);
             z-index: 1000;
-            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .nav.scrolled {
-            padding: 0.75rem 2rem;
-            background: rgba(3, 7, 18, 0.95);
+            padding: 1rem 2rem;
         }
 
         .nav-logo {
-            font-weight: 800;
+            font-family: var(--font-mono);
+            font-weight: 700;
             font-size: 1.25rem;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            letter-spacing: -0.02em;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        .nav-logo span {
+            background: var(--black);
+            color: var(--white);
+            padding: 0.25rem 0.5rem;
         }
 
         .nav-links {
             display: flex;
-            gap: 1rem;
+            gap: 0;
         }
 
         .nav-links a {
-            color: var(--text-secondary);
+            color: var(--black);
             text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            position: relative;
-            overflow: hidden;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1.25rem 1.5rem;
+            border-left: 2px solid var(--black);
         }
 
-        .nav-links a::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .nav-links a:hover::before {
-            left: 100%;
+        .nav-links a:last-child {
+            border-right: 2px solid var(--black);
         }
 
         .nav-links a:hover {
-            color: var(--text);
-            background: rgba(99, 102, 241, 0.1);
+            background: var(--black);
+            color: var(--white);
         }
 
-        .nav-links a.active {
-            color: var(--primary-light);
-            background: rgba(99, 102, 241, 0.15);
+        .nav-cta {
+            background: var(--accent);
+            color: var(--white) !important;
         }
 
-        /* Main Layout with Sidebar */
-        .main-layout {
+        /* Hero */
+        .hero {
+            min-height: 90vh;
             display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--black);
+            background: var(--gray-50);
+            margin-top: 60px;
+        }
+
+        .hero-inner {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0;
-            gap: 2rem;
-        }
-
-        /* Table of Contents - Left Sidebar */
-        .toc-sidebar {
-            width: 300px;
-            flex-shrink: 0;
-            position: sticky;
-            top: 80px;
-            height: calc(100vh - 100px);
-            overflow-y: auto;
-            padding: 2rem 0 2rem 2rem;
-        }
-
-        .toc-container {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .toc-container:hover {
-            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
-        }
-
-        .toc-container h2 {
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .toc-container ul {
-            list-style: none;
-        }
-
-        .toc-container li {
-            margin: 0.25rem 0;
-        }
-
-        .toc-container a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.625rem 0.75rem;
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.9rem;
-            border-left: 3px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .toc-container a::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .toc-container a:hover::after {
-            opacity: 1;
-        }
-
-        .toc-container a:hover {
-            color: var(--text);
-            border-left-color: var(--primary);
-            transform: translateX(4px);
-        }
-
-        .toc-container a.active {
-            background: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%);
-            color: var(--primary-light);
-            border-left-color: var(--primary);
-            font-weight: 600;
-            box-shadow: 
-                -4px 0 20px rgba(99, 102, 241, 0.3),
-                inset 0 0 20px rgba(99, 102, 241, 0.1);
-        }
-
-        .toc-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--primary-light);
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-
-        .toc-container a.active .toc-number {
-            background: var(--gradient-1);
-            color: white;
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
-        }
-
-        /* Content Area */
-        .content-area {
-            flex: 1;
             padding: 4rem 2rem;
-            max-width: 900px;
-        }
-
-        /* Sections */
-        section {
-            margin-bottom: 4rem;
-            scroll-margin-top: 100px;
-        }
-
-        h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        h2 .section-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            background: var(--gradient-1);
-            border-radius: 16px;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
-        }
-
-        h3 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin: 2rem 0 1rem;
-            color: var(--text);
-        }
-
-        p {
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            font-size: 1.125rem;
-            line-height: 1.8;
-        }
-
-        /* Info Cards with Glassmorphism */
-        .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .info-card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 2rem;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .info-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-            transition: left 0.7s ease;
-        }
-
-        .info-card:hover::before {
-            left: 100%;
-        }
-
-        .info-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                0 0 40px rgba(99, 102, 241, 0.1);
-        }
-
-        .info-card-icon {
-            width: 56px;
-            height: 56px;
-            background: var(--gradient-1);
-            border-radius: 16px;
-            display: flex;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
             align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
-            transition: all 0.3s ease;
         }
 
-        .info-card:hover .info-card-icon {
-            transform: scale(1.1) rotate(5deg);
-        }
-
-        .info-card h4 {
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
-
-        .info-card p {
-            font-size: 0.95rem;
-            margin: 0;
-            color: var(--text-muted);
-        }
-
-        /* Code Blocks with Modern Styling */
-        .code-block {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            margin: 1.5rem 0;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .code-block:hover {
-            border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .code-header {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 1rem 1.25rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .code-language {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--primary-light);
-            font-weight: 600;
-            letter-spacing: 0.1em;
-        }
-
-        .copy-btn {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            color: var(--primary-light);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
+        .hero-label {
+            font-family: var(--font-mono);
             font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .copy-btn:hover {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-        }
-
-        pre {
-            padding: 1.5rem;
-            overflow-x: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            line-height: 1.7;
-        }
-
-        code {
-            font-family: 'JetBrains Mono', monospace;
-            background: rgba(99, 102, 241, 0.1);
-            padding: 0.2rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.9em;
-            color: var(--primary-light);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-        }
-
-        pre code {
-            background: none;
-            padding: 0;
-            color: var(--text);
-            border: none;
-        }
-
-        .comment { color: var(--text-muted); font-style: italic; }
-        .string { color: #a5d6ff; }
-        .keyword { color: #ff7b72; }
-        .function { color: #d2a8ff; }
-        .number { color: #79c0ff; }
-
-        /* Steps with Modern Animation */
-        .steps {
-            counter-reset: step;
-        }
-
-        .step {
-            position: relative;
-            padding-left: 4rem;
-            margin-bottom: 2.5rem;
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-
-        .step.animate {
-            opacity: 1;
-            transform: translateX(0);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .step::before {
-            counter-increment: step;
-            content: counter(step);
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 40px;
-            height: 40px;
-            background: var(--gradient-1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-weight: 700;
-            font-size: 1rem;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
         }
 
-        .step:hover::before {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
         }
 
-        .step::after {
-            content: '';
-            position: absolute;
-            left: 19px;
-            top: 50px;
-            bottom: -30px;
-            width: 2px;
-            background: linear-gradient(180deg, var(--primary), transparent);
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            margin-bottom: 2rem;
         }
 
-        .step:last-child::after {
-            display: none;
-        }
-
-        /* Lists */
-        ul, ol {
-            margin: 1.5rem 0;
-            padding-left: 1.5rem;
-        }
-
-        li {
-            margin: 0.75rem 0;
-            color: var(--text-secondary);
-            position: relative;
-        }
-
-        /* Tips & Warnings with Glassmorphism */
-        .tip, .warning, .danger {
-            padding: 1.5rem;
-            border-radius: 16px;
-            margin: 1.5rem 0;
+        .hero-cta {
             display: flex;
             gap: 1rem;
-            align-items: flex-start;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            transition: all 0.3s ease;
+            margin-bottom: 3rem;
         }
 
-        .tip:hover, .warning:hover, .danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .tip {
-            border-color: rgba(16, 185, 129, 0.3);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
-        }
-
-        .warning {
-            border-color: rgba(245, 158, 11, 0.3);
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
-        }
-
-        .danger {
-            border-color: rgba(239, 68, 68, 0.3);
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
-        }
-
-        .tip-icon, .warning-icon, .danger-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes iconBounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-        .tip-content, .warning-content, .danger-content {
-            flex: 1;
-        }
-
-        .tip-title, .warning-title, .danger-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-            font-size: 1.1rem;
-        }
-
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin: 1.5rem 0;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-        }
-
-        th {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 1rem 1.25rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text);
-            border-bottom: 1px solid var(--glass-border);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--glass-border);
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-        }
-
-        tr:hover td {
-            background: rgba(99, 102, 241, 0.05);
-            color: var(--text);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             padding: 1rem 2rem;
-            background: var(--gradient-1);
-            color: white;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
+            border: 2px solid var(--black);
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.2s;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
+        .btn-primary {
+            background: var(--black);
+            color: var(--white);
         }
 
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        .btn-primary:hover {
+            background: var(--accent);
+            border-color: var(--accent);
         }
 
         .btn-secondary {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--text);
+            background: transparent;
+            color: var(--black);
         }
 
         .btn-secondary:hover {
-            background: rgba(99, 102, 241, 0.1);
-            border-color: rgba(99, 102, 241, 0.3);
+            background: var(--black);
+            color: var(--white);
         }
 
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            border-top: 2px solid var(--black);
+            padding-top: 2rem;
         }
 
-        .btn-danger:hover {
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        .stat-number {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gray-500);
+            margin-top: 0.5rem;
+        }
+
+        /* Terminal */
+        .hero-visual {
+            background: var(--black);
+            border: 2px solid var(--black);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero-visual::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: -8px;
+            bottom: -8px;
+            background: var(--gray-300);
+            z-index: -1;
+        }
+
+        .terminal-header {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-700);
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: var(--accent); }
+        .terminal-dot.yellow { background: var(--warning); }
+        .terminal-dot.green { background: var(--success); }
+
+        .terminal-body {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: var(--gray-300);
+        }
+
+        .terminal-line {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Section */
+        .section-header {
+            border-top: 2px solid var(--black);
+            border-bottom: 2px solid var(--black);
+            padding: 1.5rem 2rem;
+            background: var(--black);
+            color: var(--white);
+        }
+
+        .section-header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-number {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-bottom: 2px solid var(--black);
+        }
+
+        .feature-card {
+            padding: 3rem 2rem;
+            border-right: 2px solid var(--black);
+        }
+
+        .feature-card:last-child {
+            border-right: none;
+        }
+
+        .feature-card:hover {
+            background: var(--gray-100);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--white);
+        }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        /* Content Blocks */
+        .content-block {
+            padding: 4rem 0;
+            border-bottom: 2px solid var(--black);
+        }
+
+        .block-header {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            align-items: start;
+        }
+
+        .block-number {
+            font-family: var(--font-mono);
+            font-size: 5rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--gray-200);
+        }
+
+        .block-content h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .block-content > p {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            max-width: 600px;
+        }
+
+        /* Steps */
+        .steps-container {
+            border: 2px solid var(--black);
+        }
+
+        .step-item {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            border-bottom: 2px solid var(--black);
+        }
+
+        .step-item:last-child {
+            border-bottom: none;
+        }
+
+        .step-item:hover {
+            background: var(--gray-50);
+        }
+
+        .step-number {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 2px solid var(--black);
+            background: var(--black);
+            color: var(--white);
+        }
+
+        .step-content {
+            padding: 2rem;
+        }
+
+        .step-content h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .step-content p {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        /* Code */
+        .code-container {
+            border: 2px solid var(--black);
+            margin: 2rem 0;
+            background: var(--gray-50);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--black);
+            color: var(--white);
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .code-block {
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            line-height: 1.8;
+            background: var(--gray-900);
+            color: var(--gray-300);
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--white);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .copy-btn:hover {
+            background: var(--white);
+            color: var(--black);
+        }
+
+        /* Alerts */
+        .alert {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.5rem;
+            padding: 2rem;
+            border: 2px solid var(--black);
+            margin: 2rem 0;
+        }
+
+        .alert-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-danger {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .alert-danger .alert-icon {
+            background: var(--white);
+            color: var(--accent);
+        }
+
+        .alert-info {
+            background: var(--gray-100);
+        }
+
+        .alert-info .alert-icon {
+            background: var(--black);
+            color: var(--white);
+        }
+
+        .alert-content h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .alert-content p {
+            font-size: 0.9rem;
+        }
+
+        /* Table */
+        .table-container {
+            border: 2px solid var(--black);
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: var(--black);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            border-right: 1px solid var(--gray-700);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            border-right: 1px solid var(--gray-200);
+        }
+
+        tr:hover td {
+            background: var(--gray-50);
+        }
+
+        /* CTA */
+        .cta-section {
+            background: var(--black);
+            color: var(--white);
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            color: var(--gray-400);
+            margin-bottom: 2rem;
+        }
+
+        .btn-white {
+            background: var(--white);
+            color: var(--black);
+            border-color: var(--white);
+        }
+
+        .btn-white:hover {
+            background: var(--accent);
+            color: var(--white);
+            border-color: var(--accent);
         }
 
         /* Footer */
         footer {
-            background: var(--bg-elevated);
-            border-top: 1px solid var(--border);
-            padding: 4rem 2rem;
+            border-top: 2px solid var(--black);
+            padding: 3rem 2rem;
             text-align: center;
-            margin-top: 4rem;
-            position: relative;
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 1px;
-            background: var(--gradient-1);
-        }
-
-        footer p {
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        /* Scrollbar Styling */
-        .toc-sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .toc-sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .toc-sidebar::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.3);
-            border-radius: 3px;
-        }
-
-        .toc-sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(99, 102, 241, 0.5);
-        }
-
-        /* Progress Bar */
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: var(--gradient-1);
-            z-index: 1001;
-            transition: width 0.3s;
-            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
-        }
-
-        /* Reveal Animation Classes */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--gray-500);
         }
 
         /* Responsive */
-        @media (max-width: 1100px) {
-            .main-layout {
-                flex-direction: column;
+        @media (max-width: 1024px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
             }
 
-            .toc-sidebar {
-                width: 100%;
-                position: relative;
-                top: 0;
-                height: auto;
-                padding: 1rem;
-                order: -1;
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .toc-container {
-                max-height: 400px;
-                overflow-y: auto;
+            .feature-card:nth-child(2) {
+                border-right: none;
             }
 
-            .content-area {
-                padding: 2rem 1rem;
+            .feature-card:nth-child(1),
+            .feature-card:nth-child(2) {
+                border-bottom: 2px solid var(--black);
             }
+        }
 
+        @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
@@ -960,495 +641,335 @@
                 font-size: 2rem;
             }
 
-            h2 {
-                font-size: 1.75rem;
-            }
-
-            .info-grid {
+            .hero-stats {
                 grid-template-columns: 1fr;
             }
-        }
 
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 1.75rem;
+            .features-grid {
+                grid-template-columns: 1fr;
             }
 
-            h2 {
-                font-size: 1.5rem;
+            .feature-card {
+                border-right: none;
+                border-bottom: 2px solid var(--black);
             }
 
-            .hero-meta {
-                flex-direction: column;
-                gap: 0.5rem;
+            .step-item {
+                grid-template-columns: 60px 1fr;
             }
 
-            .step {
-                padding-left: 3rem;
+            .step-content {
+                padding: 1.5rem;
             }
 
-            .step::before {
-                width: 32px;
-                height: 32px;
-                font-size: 0.875rem;
+            .block-header {
+                grid-template-columns: 1fr;
             }
-        }
 
-        /* Shimmer Loading Effect */
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
+            .block-number {
+                font-size: 3rem;
+            }
 
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
+            .cta-section h2 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-<div class="progress-bar" id="progressBar"></div>
-<div class="bg-gradient"></div>
-<div class="particles" id="particles"></div>
-<nav class="nav" id="navbar">
-<div class="nav-logo">
-<i data-lucide="bot" style="width: 24px; height: 24px;"></i>
-                OpenClaw Guide
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-logo">
+                <i data-lucide="terminal" style="width: 20px; height: 20px;"></i>
+                <span>OPENCLAW</span>
             </div>
-<div class="nav-links">
-<a class="active" href="index.html">
-<i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
-                    Setup Guide
-                </a>
-<a href="security.html">
-<i data-lucide="shield" style="width: 16px; height: 16px;"></i>
-                    Security
-                </a>
-<a href="https://github.com/axvg/moltbot-tuto" target="_blank">
-<i data-lucide="github" style="width: 16px; height: 16px;"></i>
-                    GitHub
-                </a>
-</div>
-</nav>
-<header class="hero">
-<div class="hero-content">
-<div class="hero-badge">
-<i data-lucide="rocket" style="width: 16px; height: 16px;"></i>
-                    Complete Deployment Guide
+            <div class="nav-links">
+                <a href="index.html">Guide</a>
+                <a href="security.html">Security</a>
+                <a href="https://github.com/axvg/openclaw-tuto" target="_blank">GitHub</a>
+                <a href="#deploy" class="nav-cta">Deploy Now →</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-inner">
+            <div>
+                <div class="hero-label">PRODUCTION AI INFRASTRUCTURE</div>
+                <h1>Deploy Your 24/7 AI Engineering Team</h1>
+                <p class="hero-subtitle">
+                    Transform DigitalOcean infrastructure into an autonomous development environment. 
+                    Code, research, deploy—all via Telegram.
+                </p>
+                <div class="hero-cta">
+                    <a href="#deploy" class="btn btn-primary">Start Deployment →</a>
+                    <a href="security.html" class="btn btn-secondary">Security Guide</a>
                 </div>
-<h1>Deploy OpenClaw + Telegram on DigitalOcean</h1>
-<p class="hero-subtitle">Transform your DigitalOcean droplet into a 24/7 AI freelance developer that codes, researches, and manages tasks via Telegram</p>
-<div class="hero-meta">
-<span><i data-lucide="clock" style="width: 16px; height: 16px;"></i> 30 min setup</span>
-<span><i data-lucide="credit-card" style="width: 16px; height: 16px;"></i> $12/month</span>
-<span><i data-lucide="cpu" style="width: 16px; height: 16px;"></i> AI-Powered</span>
-<span><i data-lucide="message-square" style="width: 16px; height: 16px;"></i> Telegram Control</span>
-</div>
-</div>
-<div class="scroll-indicator" onclick="document.querySelector('.main-layout').scrollIntoView({behavior: 'smooth'})">
-<svg fill="none" height="24" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="24">
-<path d="M12 5v14M19 12l-7 7-7-7"></path>
-</svg>
-</div>
-</header>
-<div class="main-layout">
-<aside class="toc-sidebar">
-<div class="toc-container">
-<h2><i data-lucide="list" style="width: 18px; height: 18px;"></i> Contents</h2>
-<ul>
-<li><a class="toc-link" href="#prerequisites"><span class="toc-number">1</span> Prerequisites</a></li>
-<li><a class="toc-link" href="#telegram"><span class="toc-number">2</span> Telegram Bot</a></li>
-<li><a class="toc-link" href="#setup"><span class="toc-number">3</span> DigitalOcean</a></li>
-<li><a class="toc-link" href="#configure"><span class="toc-number">4</span> Configure</a></li>
-<li><a class="toc-link" href="#mcp"><span class="toc-number">5</span> MCP Servers</a></li>
-<li><a class="toc-link" href="#commands"><span class="toc-number">6</span> Commands</a></li>
-<li><a class="toc-link" href="#examples"><span class="toc-number">7</span> Examples</a></li>
-<li><a class="toc-link" href="#troubleshooting"><span class="toc-number">8</span> Troubleshooting</a></li>
-</ul>
-</div>
-</aside>
-<main class="content-area">
-<section class="reveal" id="prerequisites">
-<h2><span class="section-number">1</span> Prerequisites</h2>
-<p>Before we begin, you'll need a few things ready. Don't worry - they're all free or have free tiers.</p>
-<div class="info-grid">
-<div class="info-card">
-<div class="info-card-icon">💳</div>
-<h4>DigitalOcean Account</h4>
-<p>Sign up at digitalocean.com. New users get $200 free credit for 60 days.</p>
-</div>
-<div class="info-card">
-<div class="info-card-icon">💬</div>
-<h4>Telegram Account</h4>
-<p>Download Telegram on your phone. We'll create a bot using @BotFather.</p>
-</div>
-<div class="info-card">
-<div class="info-card-icon">🤖</div>
-<h4>AI API Key</h4>
-<p>Get an API key from Anthropic, OpenAI, or Google. Anthropic recommended for coding.</p>
-</div>
-<div class="info-card">
-<div class="info-card-icon">🔑</div>
-<h4>SSH Key (Optional)</h4>
-<p>For secure server access. Generate with: ssh-keygen -t ed25519</p>
-</div>
-</div>
-<div class="tip">
-<div class="tip-icon">💡</div>
-<div class="tip-content">
-<div class="tip-title">Pro Tip</div>
-<p>Use Anthropic's Claude 3.5 Sonnet for the best coding experience. It's specifically trained on code and outperforms GPT-4 for development tasks.</p>
-</div>
-</div>
-</section>
-<section class="reveal" id="telegram">
-<h2><span class="section-number">2</span> Create Your Telegram Bot</h2>
-<p>Your Telegram bot will be the control interface for your AI developer. Here's how to create it:</p>
-<div class="steps">
-<div class="step">
-<h3>Open Telegram and Find @BotFather</h3>
-<p>Search for "BotFather" in Telegram (it's the official bot for creating bots). Start a chat and type: <code>/newbot</code></p>
-</div>
-<div class="step">
-<h3>Name Your Bot</h3>
-<p>Choose a display name (e.g., "My AI Developer") and then a username that must end in "bot" (e.g., "myai_dev_bot")</p>
-</div>
-<div class="step">
-<h3>Save the API Token</h3>
-<p>BotFather will give you a token like: <code>123456789:ABCdefGHIjklMNOpqrSTUvwxyz</code>. Save this - you'll need it later!</p>
-</div>
-<div class="step">
-<h3>Get Your User ID</h3>
-<p>Message @userinfobot on Telegram. It will reply with your user ID (a number like 123456789). Save this too.</p>
-</div>
-</div>
-<div class="code-block">
-<div class="code-header">
-<span class="code-language">Tokens to Save</span>
-<button class="copy-btn" onclick="copyToClipboard('TELEGRAM_BOT_TOKEN: your_token_here\nYOUR_USER_ID: your_user_id_here', this)">
-<i data-lucide="copy" style="width: 14px; height: 14px;"></i>
-                            Copy
-                        </button>
-</div>
-<pre>TELEGRAM_BOT_TOKEN: 123456789:ABCdefGHIjklMNOpqrSTUvwxyz
-YOUR_USER_ID: 123456789</pre>
-</div>
-</section>
-<section class="reveal" id="setup">
-<h2><span class="section-number">3</span> Setup DigitalOcean Droplet</h2>
-<p>Now let's create your server that will run OpenClaw 24/7. This is easier than you think!</p>
-<h3>Option A: 1-Click Marketplace (Easiest)</h3>
-<div class="steps">
-<div class="step">
-<h3>Go to DigitalOcean Marketplace</h3>
-<p>Visit <a href="https://marketplace.digitalocean.com/apps/moltbot" style="color: var(--primary-light);">marketplace.digitalocean.com/apps/moltbot</a> and click "Create OpenClaw Droplet"</p>
-</div>
-<div class="step">
-<h3>Choose Your Plan</h3>
-<p>Select "Basic" plan with at least 2GB RAM ($12/month recommended for production use)</p>
-</div>
-<div class="step">
-<h3>Select Datacenter</h3>
-<p>Pick a region close to you (e.g., New York, London, Singapore)</p>
-</div>
-<div class="step">
-<h3>Authentication</h3>
-<p>Choose "SSH Key" (recommended) or password. Add your SSH key if you have one.</p>
-</div>
-<div class="step">
-<h3>Create and Wait</h3>
-<p>Click "Create Droplet". Wait 2-3 minutes for it to be ready. You'll receive an email with the IP address.</p>
-</div>
-</div>
-<h3>Option B: Manual Setup (More Control)</h3>
-<p>If you prefer manual installation:</p>
-<div class="code-block">
-<div class="code-header">
-<span class="code-language">bash</span>
-<button class="copy-btn" onclick="copyCode(this)">
-<i data-lucide="copy" style="width: 14px; height: 14px;"></i>
-                        Copy
-                    </button>
-</div>
-<pre><span class="comment"># SSH into your droplet</span>
+                <div class="hero-stats">
+                    <div>
+                        <div class="stat-number">30min</div>
+                        <div class="stat-label">Deploy Time</div>
+                    </div>
+                    <div>
+                        <div class="stat-number">$12</div>
+                        <div class="stat-label">Monthly Cost</div>
+                    </div>
+                    <div>
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Availability</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="terminal-header">
+                    <div class="terminal-dot red"></div>
+                    <div class="terminal-dot yellow"></div>
+                    <div class="terminal-dot green"></div>
+                    <span style="margin-left: auto; color: var(--gray-500); font-family: var(--font-mono); font-size: 0.75rem;">root@openclaw:~</span>
+                </div>
+                <div class="terminal-body">
+                    <div class="terminal-line"><span style="color: var(--success);">$</span> <span style="color: var(--white);">openclaw deploy</span></div>
+                    <div class="terminal-line" style="color: var(--gray-500);">✓ Provisioning droplet...</div>
+                    <div class="terminal-line" style="color: var(--gray-500);">✓ Installing MCP servers...</div>
+                    <div class="terminal-line" style="color: var(--gray-500);">✓ Connecting Telegram...</div>
+                    <div class="terminal-line" style="color: var(--success);">✓ AI engineer ready</div>
+                    <div class="terminal-line" style="margin-top: 1rem;"><span style="color: var(--success);">$</span> <span style="color: var(--white);">telegram</span></div>
+                    <div class="terminal-line"><span style="color: var(--accent-light);">You:</span> Create Python API</div>
+                    <div class="terminal-line"><span style="color: var(--accent);">OpenClaw:</span> Building FastAPI...</div>
+                    <div class="terminal-line" style="margin-top: 1rem;"><span style="color: var(--success);">$</span> <span style="background: var(--gray-500); color: var(--black);">█</span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="section-header">
+        <div class="section-header-inner">
+            <span class="section-number">01 / 04</span>
+            <span class="section-title">Platform Overview</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="code-2"></i>
+                </div>
+                <h3>Code Generation</h3>
+                <p>Python, JavaScript, Go. Automated testing, docs, deployment.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="globe"></i>
+                </div>
+                <h3>Web Research</h3>
+                <p>Autonomous browsing, data extraction, competitive analysis.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="server"></i>
+                </div>
+                <h3>Infrastructure</h3>
+                <p>Docker, CI/CD, databases, monitoring setup.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i data-lucide="shield"></i>
+                </div>
+                <h3>Enterprise Security</h3>
+                <p>IP restrictions, encrypted tokens, audit logs.</p>
+            </div>
+        </div>
+
+        <section class="content-block" id="deploy">
+            <div class="block-header">
+                <span class="block-number">02</span>
+                <div class="block-content">
+                    <h2>Deploy in 30 Minutes</h2>
+                    <p>Automated provisioning on DigitalOcean. Production-ready infrastructure with security hardened by default.</p>
+                </div>
+            </div>
+
+            <div class="alert alert-danger">
+                <div class="alert-icon">
+                    <i data-lucide="shield-alert" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div class="alert-content">
+                    <h4>Security First</h4>
+                    <p>Attackers scan cloud IPs within hours. Complete the Security Guide before deploying production workloads.</p>
+                </div>
+            </div>
+
+            <div class="steps-container">
+                <div class="step-item">
+                    <div class="step-number">01</div>
+                    <div class="step-content">
+                        <h3>Create Telegram Bot</h3>
+                        <p>Message @BotFather, create bot, save API token. Get your user ID from @userinfobot.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">02</div>
+                    <div class="step-content">
+                        <h3>Provision DigitalOcean Droplet</h3>
+                        <p>2GB RAM minimum ($12/month). Choose region closest to your team.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">03</div>
+                    <div class="step-content">
+                        <h3>Deploy OpenClaw Container</h3>
+                        <p>SSH in, run Docker container with your API keys. Full automation in 5 minutes.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">04</div>
+                    <div class="step-content">
+                        <h3>Configure Security</h3>
+                        <p>UFW firewall, SSH hardening, API token permissions. Non-negotiable for production.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <span>Quick Deploy Script</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-block">
+<span style="color: var(--gray-500);"># SSH into your droplet</span>
 ssh root@YOUR_DROPLET_IP
 
-<span class="comment"># Update system</span>
-apt update && apt upgrade -y
-
-<span class="comment"># Install Docker</span>
+<span style="color: var(--gray-500);"># Update &amp; install Docker</span>
+apt update &amp;&amp; apt upgrade -y
 curl -fsSL https://get.docker.com | sh
 
-<span class="comment"># Run OpenClaw container</span>
+<span style="color: var(--gray-500);"># Run OpenClaw</span>
 docker run -d \
-  --name moltbot \
+  --name openclaw \
   -p 3000:3000 \
-  -e TELEGRAM_BOT_TOKEN=YOUR_TOKEN \
-  -e ANTHROPIC_API_KEY=YOUR_KEY \
-  -v moltbot-data:/app/data \
-  moltbot/moltbot:latest</pre>
-</div>
-</section>
-<section class="reveal" id="configure">
-<h2><span class="section-number">4</span> Configure OpenClaw</h2>
-<p>Now let's configure OpenClaw to be your personal freelance coder. We'll set up coding capabilities, task management, and security.</p>
-<h3>Step 1: SSH Into Your Server</h3>
-<div class="code-block">
-<div class="code-header">
-<span class="code-language">bash</span>
-<button class="copy-btn" onclick="copyCode(this)">
-<i data-lucide="copy" style="width: 14px; height: 14px;"></i>
-                    Copy
-                </button>
-</div>
-<pre>ssh root@YOUR_DROPLET_IP</pre>
-</div>
-<h3>Step 2: Create Configuration Directory</h3>
-<div class="code-block">
-<div class="code-header">
-<span class="code-language">bash</span>
-<button class="copy-btn" onclick="copyCode(this)">
-<i data-lucide="copy" style="width: 14px; height: 14px;"></i>
-                    Copy
-                </button>
-</div>
-<pre><span class="comment"># Create directories</span>
-mkdir -p /etc/moltbot
-mkdir -p /home/moltbot/projects
-mkdir -p /home/moltbot/notes
-mkdir -p /home/moltbot/data
+  -e TELEGRAM_BOT_TOKEN=$TOKEN \
+  -e ANTHROPIC_API_KEY=$KEY \
+  -v openclaw-data:/app/data \
+  openclaw/openclaw:latest
+                </div>
+            </div>
 
-<span class="comment"># Create moltbot user</span>
-useradd -m -s /bin/bash moltbot
-chown -R moltbot:moltbot /home/moltbot</pre>
-</div>
-<h3>Step 3: Set Up Environment Variables</h3>
-<div class="code-block">
-<div class="code-header">
-<span class="code-language">bash</span>
-<button class="copy-btn" onclick="copyCode(this)">
-<i data-lucide="copy" style="width: 14px; height: 14px;"></i>
-                    Copy
-                </button>
-</div>
-<pre><span class="comment"># Create .env file</span>
-nano /etc/moltbot/.env
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="security.html" class="btn btn-primary">Read Security Requirements →</a>
+            </div>
+        </section>
 
-<span class="comment"># Add these lines (replace with your actual values):</span>
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
-YOUR_TELEGRAM_USER_ID=your_telegram_user_id
-ANTHROPIC_API_KEY=your_anthropic_api_key_here</pre>
-</div>
-<div class="warning">
-<div class="warning-icon">⚠️</div>
-<div class="warning-content">
-<div class="warning-title">Security Warning</div>
-<p>Never share your .env file or commit it to git! These are your private API keys. The .env file should have permissions 600 (read/write only by owner).</p>
-</div>
-</div>
-</section>
-<section class="reveal" id="commands">
-<h2><span class="section-number">6</span> Using Commands</h2>
-<p>Here are the most useful commands to interact with your AI developer via Telegram:</p>
-<div class="info-grid" style="margin-top: 2rem;">
-<div style="text-align: center; padding: 2rem;">
-<a class="btn btn-secondary" href="security.html" style="width: 100%;">
-<i data-lucide="shield-check" style="width: 20px; height: 20px;"></i>
-                        View Security Guide
-                    </a>
-</div>
-</div>
-</section>
-</main>
-</div>
-<footer>
-<p>Made with ❤️ by your AI assistant | Deployed on DigitalOcean + GitHub Pages</p>
-<p style="margin-top: 0.5rem; font-size: 0.875rem;">Last updated: January 2026</p>
-</footer>
-<script>
-        // Initialize Lucide icons
+        <section class="content-block">
+            <div class="block-header">
+                <span class="block-number">03</span>
+                <div class="block-content">
+                    <h2>Use Cases</h2>
+                    <p>Engineering workflows automated via Telegram commands.</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Command</th>
+                            <th>Output</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>API Development</td>
+                            <td>"Create FastAPI with auth"</td>
+                            <td>Full service + Docker + tests</td>
+                        </tr>
+                        <tr>
+                            <td>Data Extraction</td>
+                            <td>"Scrape site to JSON"</td>
+                            <td>Python scraper + structured data</td>
+                        </tr>
+                        <tr>
+                            <td>Technical Research</td>
+                            <td>"Compare frameworks 2025"</td>
+                            <td>Benchmarks + recommendations</td>
+                        </tr>
+                        <tr>
+                            <td>DevOps Setup</td>
+                            <td>"Setup CI/CD pipeline"</td>
+                            <td>GitHub Actions + staging deploy</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="content-block">
+            <div class="block-header">
+                <span class="block-number">04</span>
+                <div class="block-content">
+                    <h2>Security Checklist</h2>
+                    <p>Mandatory before production deployment.</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <div class="alert-icon">
+                    <i data-lucide="info" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div class="alert-content">
+                    <h4>Non-Negotiable Requirements</h4>
+                    <p>UFW firewall enabled. SSH key auth only (no passwords). API tokens with 600 permissions. Port 3000 IP-restricted. Fail2Ban installed.</p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <span>UFW Firewall Rules</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <div class="code-block">
+<span style="color: var(--gray-500);"># Install &amp; configure</span>
+apt install ufw -y
+ufw default deny incoming
+ufw default allow outgoing
+
+<span style="color: var(--gray-500);"># Allow specific IPs only</span>
+ufw allow from YOUR_OFFICE_IP to any port 22
+ufw allow from YOUR_HOME_IP to any port 3000
+
+<span style="color: var(--gray-500);"># Block dangerous ports</span>
+ufw deny 3306/tcp  <span style="color: var(--gray-500);"># MySQL</span>
+ufw deny 5432/tcp  <span style="color: var(--gray-500);"># PostgreSQL</span>
+ufw deny 6379/tcp  <span style="color: var(--gray-500);"># Redis</span>
+ufw deny 27017/tcp <span style="color: var(--gray-500);"># MongoDB</span>
+
+ufw enable
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="cta-section">
+        <h2>Deploy Your AI Team Today</h2>
+        <p>Teams use OpenClaw to accelerate development cycles and reduce infrastructure overhead.</p>
+        <a href="#deploy" class="btn btn-white">Start Deployment →</a>
+    </section>
+
+    <footer>
+        <p>OPENCLAW — PRODUCTION AI INFRASTRUCTURE</p>
+        <p style="margin-top: 0.5rem; opacity: 0.5;">Last updated: January 2026</p>
+    </footer>
+
+    <script>
         lucide.createIcons();
 
-        // Create floating particles
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const particleCount = 30;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-                container.appendChild(particle);
-            }
-        }
-        createParticles();
-
-        // GSAP Animations
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Animate sections on scroll
-        gsap.utils.toArray('.reveal').forEach((element, i) => {
-            gsap.fromTo(element, 
-                { opacity: 0, y: 50 },
-                {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    ease: 'power3.out',
-                    scrollTrigger: {
-                        trigger: element,
-                        start: 'top 85%',
-                        toggleActions: 'play none none reverse'
-                    }
-                }
-            );
-        });
-
-        // Animate steps sequentially
-        gsap.utils.toArray('.step').forEach((step, i) => {
-            gsap.fromTo(step,
-                { opacity: 0, x: -30 },
-                {
-                    opacity: 1,
-                    x: 0,
-                    duration: 0.6,
-                    delay: i * 0.1,
-                    ease: 'power2.out',
-                    scrollTrigger: {
-                        trigger: step,
-                        start: 'top 85%',
-                        toggleActions: 'play none none reverse'
-                    }
-                }
-            );
-        });
-
-        // Animate info cards
-        gsap.utils.toArray('.info-card').forEach((card, i) => {
-            gsap.fromTo(card,
-                { opacity: 0, y: 30, scale: 0.95 },
-                {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    duration: 0.6,
-                    delay: i * 0.1,
-                    ease: 'back.out(1.7)',
-                    scrollTrigger: {
-                        trigger: card,
-                        start: 'top 85%',
-                        toggleActions: 'play none none reverse'
-                    }
-                }
-            );
-        });
-
-        // Smooth scroll for TOC links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    gsap.to(window, {
-                        duration: 1,
-                        scrollTo: { y: target, offsetY: 100 },
-                        ease: 'power3.inOut'
-                    });
-                }
-            });
-        });
-
-        // Highlight active section in TOC
-        const sections = document.querySelectorAll('section[id]');
-        const tocLinks = document.querySelectorAll('.toc-link');
-
-        const observerOptions = {
-            root: null,
-            rootMargin: '-20% 0px -60% 0px',
-            threshold: 0
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const id = entry.target.getAttribute('id');
-                    
-                    tocLinks.forEach(link => {
-                        link.classList.remove('active');
-                    });
-                    
-                    const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
-                    if (activeLink) {
-                        activeLink.classList.add('active');
-                        
-                        // Smooth scroll TOC to keep active item visible
-                        activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                }
-            });
-        }, observerOptions);
-
-        sections.forEach(section => {
-            observer.observe(section);
-        });
-
-        // Update progress bar
-        window.addEventListener('scroll', () => {
-            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            document.getElementById('progressBar').style.width = scrolled + "%";
-            
-            // Navbar background on scroll
-            const navbar = document.getElementById('navbar');
-            if (winScroll > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Copy functions
-        function copyToClipboard(text, btn) {
-            navigator.clipboard.writeText(text);
-            showCopyFeedback(btn);
-        }
-
         function copyCode(btn) {
-            const code = btn.closest('.code-block').querySelector('pre').textContent;
+            const code = btn.closest('.code-container').querySelector('.code-block').textContent;
             navigator.clipboard.writeText(code);
-            showCopyFeedback(btn);
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
         }
-
-        function showCopyFeedback(btn) {
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="check" style="width: 14px; height: 14px;"></i> Copied!';
-            btn.style.background = 'var(--secondary)';
-            btn.style.borderColor = 'var(--secondary)';
-            lucide.createIcons();
-            
-            setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.style.background = '';
-                btn.style.borderColor = '';
-                lucide.createIcons();
-            }, 2000);
-        }
-
-        // Smooth fade out hero on scroll (no parallax to avoid overlap)
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const hero = document.querySelector('.hero');
-            const heroContent = document.querySelector('.hero-content');
-            if (hero && scrolled < window.innerHeight) {
-                // Fade out content as user scrolls
-                const opacity = 1 - (scrolled / (window.innerHeight * 0.5));
-                heroContent.style.opacity = Math.max(0, opacity);
-            }
-        });
     </script>
 </body>
 </html>
