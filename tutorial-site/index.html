@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>How to Deploy Moltbot + Telegram on DigitalOcean - Complete Guide</title>
+<title>How to Deploy OpenClaw + Telegram on DigitalOcean - Complete Guide</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
@@ -105,6 +105,13 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
+            z-index: 1;
+        }
+
+        .main-layout {
+            position: relative;
+            z-index: 10;
+            background: var(--bg);
         }
 
         .hero-content {
@@ -1007,7 +1014,7 @@
 <nav class="nav" id="navbar">
 <div class="nav-logo">
 <i data-lucide="bot" style="width: 24px; height: 24px;"></i>
-                Moltbot Guide
+                OpenClaw Guide
             </div>
 <div class="nav-links">
 <a class="active" href="index.html">
@@ -1030,7 +1037,7 @@
 <i data-lucide="rocket" style="width: 16px; height: 16px;"></i>
                     Complete Deployment Guide
                 </div>
-<h1>Deploy Moltbot + Telegram on DigitalOcean</h1>
+<h1>Deploy OpenClaw + Telegram on DigitalOcean</h1>
 <p class="hero-subtitle">Transform your DigitalOcean droplet into a 24/7 AI freelance developer that codes, researches, and manages tasks via Telegram</p>
 <div class="hero-meta">
 <span><i data-lucide="clock" style="width: 16px; height: 16px;"></i> 30 min setup</span>
@@ -1130,12 +1137,12 @@ YOUR_USER_ID: 123456789</pre>
 </section>
 <section class="reveal" id="setup">
 <h2><span class="section-number">3</span> Setup DigitalOcean Droplet</h2>
-<p>Now let's create your server that will run Moltbot 24/7. This is easier than you think!</p>
+<p>Now let's create your server that will run OpenClaw 24/7. This is easier than you think!</p>
 <h3>Option A: 1-Click Marketplace (Easiest)</h3>
 <div class="steps">
 <div class="step">
 <h3>Go to DigitalOcean Marketplace</h3>
-<p>Visit <a href="https://marketplace.digitalocean.com/apps/moltbot" style="color: var(--primary-light);">marketplace.digitalocean.com/apps/moltbot</a> and click "Create Moltbot Droplet"</p>
+<p>Visit <a href="https://marketplace.digitalocean.com/apps/moltbot" style="color: var(--primary-light);">marketplace.digitalocean.com/apps/moltbot</a> and click "Create OpenClaw Droplet"</p>
 </div>
 <div class="step">
 <h3>Choose Your Plan</h3>
@@ -1173,7 +1180,7 @@ apt update && apt upgrade -y
 <span class="comment"># Install Docker</span>
 curl -fsSL https://get.docker.com | sh
 
-<span class="comment"># Run Moltbot container</span>
+<span class="comment"># Run OpenClaw container</span>
 docker run -d \
   --name moltbot \
   -p 3000:3000 \
@@ -1184,8 +1191,8 @@ docker run -d \
 </div>
 </section>
 <section class="reveal" id="configure">
-<h2><span class="section-number">4</span> Configure Moltbot</h2>
-<p>Now let's configure Moltbot to be your personal freelance coder. We'll set up coding capabilities, task management, and security.</p>
+<h2><span class="section-number">4</span> Configure OpenClaw</h2>
+<p>Now let's configure OpenClaw to be your personal freelance coder. We'll set up coding capabilities, task management, and security.</p>
 <h3>Step 1: SSH Into Your Server</h3>
 <div class="code-block">
 <div class="code-header">
@@ -1431,12 +1438,15 @@ ANTHROPIC_API_KEY=your_anthropic_api_key_here</pre>
             }, 2000);
         }
 
-        // Parallax effect on hero
+        // Smooth fade out hero on scroll (no parallax to avoid overlap)
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             const hero = document.querySelector('.hero');
-            if (hero) {
-                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            const heroContent = document.querySelector('.hero-content');
+            if (hero && scrolled < window.innerHeight) {
+                // Fade out content as user scrolls
+                const opacity = 1 - (scrolled / (window.innerHeight * 0.5));
+                heroContent.style.opacity = Math.max(0, opacity);
             }
         });
     </script>

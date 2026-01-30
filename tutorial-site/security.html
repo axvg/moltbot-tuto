@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Security Guide - Protecting Your Moltbot | DigitalOcean Security</title>
+<title>Security Guide - Protecting Your OpenClaw | DigitalOcean Security</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
@@ -669,9 +669,9 @@
 <i data-lucide="alert-triangle" style="width: 16px; height: 16px;"></i>
                     Critical Security Checklist
                 </div>
-<h1>🔒 Security Guide: Protect Your Moltbot</h1>
+<h1>🔒 Security Guide: Protect Your OpenClaw</h1>
 <p class="hero-subtitle">
-                    Your DigitalOcean server is a target for hackers. Learn how to secure your Moltbot installation, 
+                    Your DigitalOcean server is a target for hackers. Learn how to secure your OpenClaw installation, 
                     prevent data leaks, close vulnerable ports, and stop unauthorized access before it happens.
                 </p>
 </div>
@@ -762,7 +762,7 @@
 </tr>
 <tr>
 <td>3000</td>
-<td>Moltbot Gateway</td>
+<td>OpenClaw Gateway</td>
 <td style="color: var(--warning);">⚠️ MEDIUM</td>
 <td>Restrict to your IP only or use VPN</td>
 </tr>
@@ -833,7 +833,7 @@ sudo ufw default allow outgoing
 <span class="comment"># Allow SSH (change port if you moved it)</span>
 sudo ufw allow 22/tcp
 
-<span class="comment"># Allow Moltbot Gateway ONLY from your IP</span>
+<span class="comment"># Allow OpenClaw Gateway ONLY from your IP</span>
 sudo ufw allow from YOUR_HOME_IP to any port 3000
 
 <span class="comment"># If you need HTTPS access</span>
@@ -851,8 +851,8 @@ sudo ufw enable
 <span class="comment"># Verify rules</span>
 sudo ufw status verbose numbered</pre>
 </div>
-<h3>Restrict Moltbot Gateway by IP</h3>
-<p>The Moltbot web gateway (port 3000) should never be publicly accessible. Restrict it:</p>
+<h3>Restrict OpenClaw Gateway by IP</h3>
+<p>The OpenClaw web gateway (port 3000) should never be publicly accessible. Restrict it:</p>
 <div class="code-block">
 <div class="code-header">
 <span class="code-language">bash</span>
@@ -1068,7 +1068,7 @@ git config --global credential.helper 'cache --timeout=3600'</pre>
 <div class="checklist-item" onclick="toggleCheck(this)">
 <div class="checklist-checkbox"><i data-lucide="check" style="width: 16px; height: 16px; display: none;"></i></div>
 <div class="checklist-content">
-<h4>Moltbot Gateway IP-Restricted</h4>
+<h4>OpenClaw Gateway IP-Restricted</h4>
 <p>Port 3000 only accessible from your home IP or VPN</p>
 </div>
 </div>
